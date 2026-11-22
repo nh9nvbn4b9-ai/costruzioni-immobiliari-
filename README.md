@@ -3,8 +3,10 @@
 Sito one-page (Home, Chi siamo, Servizi, Preventivo, Contatti, Orari, Dove siamo).
 
 - `site/` – il sito statico: apri `site/index.html` o pubblica la cartella su qualsiasi hosting.
-- `video/` – progetto [Remotion](https://github.com/remotion-dev/remotion) che genera l'animazione della home
-  (il palazzo si costruisce, si illumina il 5° piano, la camera si avvicina e mostra la pianta).
+- `video/` – progetto [Remotion](https://github.com/remotion-dev/remotion) che genera l'animazione della home.
+  La versione usata dal sito è una scena 3D (`@remotion/three` + three.js) in `video/src/cantiere/`:
+  un isolato di Milano, scavo e fondazioni, struttura in cemento armato che sale piano per piano,
+  facciate e vetrate, tramonto, il 5° piano che si illumina e la pianta arredata vista dall'alto.
 
 ## Rigenerare i video
 
@@ -12,8 +14,8 @@ Sito one-page (Home, Chi siamo, Servizi, Preventivo, Contatti, Orari, Dove siamo
 cd video
 npm install
 npx remotion studio src/index.ts            # anteprima interattiva
-npx remotion render src/index.ts PalazzoLandscape out/palazzo-landscape.mp4
-npx remotion render src/index.ts PalazzoPortrait  out/palazzo-portrait.mp4
+npx remotion render src/index.ts CantiereLandscape out/cantiere-landscape.mp4 --gl=swangle
+npx remotion render src/index.ts CantierePortrait  out/cantiere-portrait.mp4  --gl=swangle
 cp out/*.mp4 ../site/assets/
 ```
 
