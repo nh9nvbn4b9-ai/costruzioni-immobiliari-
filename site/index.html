@@ -172,6 +172,19 @@ section{position:relative}
 .card li:hover{padding-left:.4rem;color:#fff}
 .card li:hover::before{width:28px}
 
+/* tour */
+.tour-head{display:flex;justify-content:space-between;align-items:end;gap:2rem;flex-wrap:wrap;margin-bottom:clamp(28px,4vw,48px)}
+.tour-head p{max-width:32em;color:var(--paper-soft)}
+.tour-frame{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--linea-scura);background:#f1efea;aspect-ratio:16/9;box-shadow:0 40px 90px -40px rgba(0,0,0,.8)}
+.tour-frame video,.tour-frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.tour-tag{position:absolute;top:14px;right:14px;font-family:var(--f-mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;background:rgba(17,20,25,.75);color:var(--paper);padding:.4rem .7rem;border-radius:999px;display:flex;gap:.5rem;align-items:center}
+.tour-tag b{width:7px;height:7px;border-radius:50%;background:var(--mattone);animation:pulse 1.6s infinite}
+.tour-facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--linea-scura);border:1px solid var(--linea-scura);border-radius:10px;overflow:hidden;margin-top:clamp(20px,3vw,32px)}
+.tour-facts div{background:var(--grafite-2);padding:1rem 1.2rem}
+.tour-facts dt{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--paper-soft)}
+.tour-facts dd{margin:.3rem 0 0;font-family:var(--f-display);font-weight:800;font-stretch:112%;font-size:clamp(1.2rem,2.4vw,1.7rem);font-variant-numeric:tabular-nums}
+@media (max-width:640px){.tour-facts{grid-template-columns:repeat(2,minmax(0,1fr))}.tour-frame{border-radius:10px}}
+
 /* preventivo */
 .quote-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:clamp(24px,4vw,64px);align-items:start}
 .quote-intro{grid-column:1 / span 5;min-width:0;position:sticky;top:110px}
@@ -357,6 +370,7 @@ footer{background:#0b0d11;color:var(--paper-soft);padding-block:56px calc(40px +
     <nav class="nav" aria-label="Sezioni">
       <a href="#chi-siamo">Chi siamo</a>
       <a href="#servizi">Servizi</a>
+      <a href="#tour">Tour 3D</a>
       <a href="#contatti">Contatti</a>
       <a href="#orari">Orari</a>
       <a href="#dove">Dove siamo</a>
@@ -370,6 +384,7 @@ footer{background:#0b0d11;color:var(--paper-soft);padding-block:56px calc(40px +
   <a href="#home" style="transition-delay:.05s"><span>HOME</span>Home</a>
   <a href="#chi-siamo" style="transition-delay:.1s"><span>CHI</span>Chi siamo</a>
   <a href="#servizi" style="transition-delay:.15s"><span>COSA</span>Servizi</a>
+  <a href="#tour" style="transition-delay:.18s"><span>3D</span>Tour</a>
   <a href="#preventivo" style="transition-delay:.2s"><span>€</span>Preventivo</a>
   <a href="#contatti" style="transition-delay:.25s"><span>TEL</span>Contatti</a>
   <a href="#orari" style="transition-delay:.3s"><span>H24</span>Orari</a>
@@ -484,6 +499,31 @@ footer{background:#0b0d11;color:var(--paper-soft);padding-block:56px calc(40px +
         </div>
       </article>
     </div>
+  </div>
+</section>
+
+<!-- ================= TOUR ================= -->
+<section class="dark band" id="tour" style="padding-top:0">
+  <span class="sheet-label" style="top:-2px">Tour 3D</span>
+  <div class="wrap">
+    <div class="tour-head">
+      <div>
+        <p class="eyebrow">Tour dell’appartamento</p>
+        <h2 class="split" data-split>Entra in casa.</h2>
+      </div>
+      <p class="rv">Il plastico 3D di un appartamento tipo al 5° piano, poi la visita stanza per stanza: soggiorno, cucina, zona pranzo, terrazzo e camera.</p>
+    </div>
+    <div class="tour-frame rv">
+      <img src="assets/tour-poster.jpg" alt="" aria-hidden="true" id="tourPoster">
+      <video id="tourVideo" muted playsinline loop preload="metadata" aria-label="Visita virtuale dell’appartamento tipo"></video>
+      <span class="tour-tag"><b></b>Visita virtuale</span>
+    </div>
+    <dl class="tour-facts rv">
+      <div><dt>Superficie</dt><dd>140 m²</dd></div>
+      <div><dt>Camere</dt><dd>3</dd></div>
+      <div><dt>Bagni</dt><dd>2</dd></div>
+      <div><dt>Terrazzo</dt><dd>13 m²</dd></div>
+    </dl>
   </div>
 </section>
 
@@ -818,6 +858,17 @@ footer{background:#0b0d11;color:var(--paper-soft);padding-block:56px calc(40px +
     requestAnimationFrame(hudTick);
   }
   if(!reduce) requestAnimationFrame(hudTick); else hud.textContent='Pianta piano 5° · 140 m²';
+
+  /* ---------- tour: si avvia da solo quando è visibile ---------- */
+  var tv=document.getElementById('tourVideo'), tp=document.getElementById('tourPoster');
+  if(!reduce){
+    tv.addEventListener('playing',function(){tp.style.transition='opacity .6s';tp.style.opacity='0';});
+    var tio=('IntersectionObserver' in window)?new IntersectionObserver(function(es){es.forEach(function(e){
+      if(e.isIntersecting){ if(!tv.src){tv.src='assets/tour.mp4';} tv.muted=true; var p=tv.play(); if(p&&p.catch)p.catch(function(){}); }
+      else if(tv.src){ tv.pause(); }
+    });},{threshold:0.25}):null;
+    if(tio) tio.observe(tv); else {tv.src='assets/tour.mp4';tv.autoplay=true;}
+  }
 
   /* ---------- header, progress, parallax ---------- */
   var dock=document.querySelector('.dock'), header=document.getElementById('top'), prog=document.getElementById('progress');

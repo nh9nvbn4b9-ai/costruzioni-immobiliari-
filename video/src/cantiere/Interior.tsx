@@ -49,6 +49,7 @@ const makeMats = (tx: Textures) => {
 		hob: s({map: tx.hob, roughness: 0.15}),
 		glassT: s({color: '#bcd8e4', transparent: true, opacity: 0.35, roughness: 0.05}),
 		winGlass: s({color: '#9fcbe2', roughness: 0.1, metalness: 0.2}),
+		clearGlass: s({color: '#d8ecf4', roughness: 0.03, metalness: 0.1, transparent: true, opacity: 0.12, depthWrite: false}),
 		lamp: s({color: '#fff3d6', emissive: new THREE.Color('#ffd79a'), emissiveIntensity: 1.6}),
 		plant: s({color: '#4d7a3a', roughness: 0.85}),
 		plant2: s({color: '#6b9a4a', roughness: 0.85}),
@@ -239,7 +240,7 @@ const buildStatic = () => {
 	return {wood: wood.build(), tiles: tiles.build(), deck: deck.build(), walls: walls.build(), win: win.build(), doors: doors.build(), doorList};
 };
 
-export const Interior: React.FC<{tx: Textures; glow: number}> = ({tx, glow}) => {
+export const Interior: React.FC<{tx: Textures; glow: number; glass?: 'solid' | 'clear'; hideDoors?: number[]}> = ({tx, glow, glass = 'solid', hideDoors = []}) => {
 	const M = useMemo(() => makeMats(tx), [tx]);
 	const S = useMemo(buildStatic, []);
 	const geos = useMemo(
@@ -261,8 +262,8 @@ export const Interior: React.FC<{tx: Textures; glow: number}> = ({tx, glow}) => 
 			<mesh geometry={S.tiles} material={M.tiles} receiveShadow />
 			<mesh geometry={S.deck} material={M.deck} receiveShadow />
 			<mesh geometry={S.walls} material={M.wallTop} castShadow receiveShadow />
-			<mesh geometry={S.win} material={M.winGlass} />
-			{S.doorList.map(({h, r, a1}, i) => (
+			<mesh geometry={S.win} material={glass === 'clear' ? M.clearGlass : M.winGlass} />
+			{S.doorList.map(({h, r, a1}, i) => hideDoors.includes(i) ? null : (
 				<mesh key={'d' + i} position={[h[0] + (Math.cos(a1) * r) / 2, 1.05, h[1] + (Math.sin(a1) * r) / 2]} rotation-y={-a1} material={M.oak} castShadow>
 					<boxGeometry args={[r, 2.1, 0.04]} />
 				</mesh>
