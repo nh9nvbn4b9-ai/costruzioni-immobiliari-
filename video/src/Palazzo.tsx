@@ -25,7 +25,8 @@ import '@fontsource/ibm-plex-mono/500.css';
  */
 
 export const FPS = 30;
-export const DURATION = 450;
+export const DURATION = 500;
+const O = 50; // fotogrammi dedicati a terreno, scavo e fondazioni
 
 type V3 = [number, number, number];
 type V2 = [number, number];
@@ -39,6 +40,38 @@ const LEVELS = 8;
 const F = 5; // piano che si illumina
 const OV = 0.12; // sbalzo solaio
 const BAL = {x0: 0.8, x1: 8.4, depth: 1.4};
+
+// ---------- lotto di terreno e contesto ----------
+const TX0 = -4;
+const TX1 = W + 4;
+const TY0 = -4;
+const TY1 = D + 7;
+const TD = 1.6; // spessore del terreno (sezione)
+const WALK: V2 = [D + 1.8, D + 3.4]; // marciapiede
+const ROAD: V2 = [D + 3.4, D + 6.6]; // strada
+const PIT = 0.4; // margine dello scavo
+type Tree = [number, number, number, number]; // x, y, altezza, raggio chioma
+const TREES_BACK: Tree[] = [
+	[-2.6, -2.4, 4.2, 1.4],
+	[4, -2.9, 3.6, 1.2],
+	[10.5, -2.7, 4.6, 1.5],
+	[-2.8, 3.4, 3.8, 1.3],
+	[-2.6, 8.4, 4.4, 1.4],
+];
+const TREES_FRONT: Tree[] = [
+	[16.2, -1.6, 4.0, 1.3],
+	[16.5, 4.4, 4.6, 1.5],
+	[16.1, 9.4, 3.6, 1.2],
+	[-2.2, D + 2.6, 4.2, 1.3],
+	[13.6, D + 2.6, 4.0, 1.25],
+];
+const LAMPS = [-0.6, 6.4, 11.2];
+const WIN_GROUND: V2[] = [
+	[1, 3.5],
+	[4.5, 7.5],
+	[11.8, 13.2],
+];
+const DOOR: V2 = [9.3, 10.9];
 
 // Finestre in facciata, coerenti con la pianta
 const WIN_FRONT: V2[] = [
@@ -163,7 +196,8 @@ const useFonts = () => {
 
 export const Palazzo: React.FC = () => {
 	useFonts();
-	const f = useCurrentFrame();
+	const g = useCurrentFrame();
+	const f = g - O; // tempo del cantiere (dopo terreno e fondazioni)
 	const {width, height} = useVideoConfig();
 	const portrait = height > width;
 
@@ -179,22 +213,23 @@ export const Palazzo: React.FC = () => {
 	const lowerOut = interpolate(f, [300, 336], [0, 1], clamp);
 	const ctxOut = interpolate(f, [270, 320], [0, 1], clamp);
 	const endFade = interpolate(f, [418, 449], [0, 1], {...clamp, easing: io});
-	const gridIn = interpolate(f, [0, 24], [0, 1], clamp);
 
 	// ---------- camera ----------
 	const zF = F * H + SLAB;
-	const bc: V3 = [W / 2, D / 2, (LEVELS * H) / 2 + 1.2];
+	const gc: V3 = [W / 2, D / 2 + 1.5, 1.2]; // inquadratura iniziale sul terreno
+	const bc: V3 = [W / 2, D / 2, 11];
+	const camPhase = interpolate(f, [0, 175], [0, 1], {...clamp, easing: io});
 	const fc: V3 = [W / 2, D / 2 + 0.6, zF];
 	const pc: V3 = [6.7, 5.7, zF];
-	const fw = mix3(mix3(bc, fc, k1), pc, p);
+	const fw = mix3(mix3(mix3(gc, bc, camPhase), fc, k1), pc, p);
 
-	const S0 = portrait ? Math.min((height * 0.46) / 39, (width * 0.8) / 22) : Math.min((height * 0.8) / 39, (width * 0.4) / 22);
+	const Sg = portrait ? (width * 0.92) / 37 : Math.min((width * 0.46) / 37, (height * 0.74) / 28);
+	const S0 = portrait ? Math.min((height * 0.46) / 49, (width * 0.92) / 37) : Math.min((height * 0.88) / 49, (width * 0.44) / 37);
 	const S1 = portrait ? (width * 0.8) / 22 : Math.min((width * 0.5) / 22, (height * 0.7) / 15);
 	const S2 = portrait ? (width * 0.84) / 16.2 : Math.min((width * 0.48) / 16.2, (height * 0.74) / 14.4);
-	const push = interpolate(f, [0, 235], [1, 1.06], clamp);
-	const S = lmix(lmix(S0 * push, S1, k1), S2, p) * (1 + 0.02 * interpolate(f, [352, 449], [0, 1], clamp));
+	const S = lmix(lmix(lmix(Sg, S0, camPhase), S1, k1), S2, p) * (1 + 0.02 * interpolate(f, [352, 449], [0, 1], clamp));
 
-	const a0: V2 = portrait ? [width * 0.5, height * 0.3] : [width * 0.68, height * 0.52];
+	const a0: V2 = portrait ? [width * 0.5, height * 0.31] : [width * 0.68, height * 0.52];
 	const a2: V2 = portrait ? [width * 0.5, height * 0.29] : [width * 0.65, height * 0.5];
 	const ax = mix(a0[0], a2[0], k1);
 	const ay = mix(a0[1], a2[1], k1);
@@ -227,6 +262,23 @@ export const Palazzo: React.FC = () => {
 	const cSlabR = interpolateColors(dusk, [0, 1], ['#8e8981', '#34322f']);
 	const cGlass = interpolateColors(dusk, [0, 1], ['#4a6176', '#16202b']);
 	const cGlass2 = interpolateColors(dusk, [0, 1], ['#3a4f62', '#111922']);
+	const cStoneL = interpolateColors(dusk, [0, 1], ['#7a746c', '#35322f']);
+	const cStoneR = interpolateColors(dusk, [0, 1], ['#5d5852', '#262422']);
+	const cFrame = interpolateColors(dusk, [0, 1], ['#383b40', '#121416']);
+	const cGlassTop = interpolateColors(dusk, [0, 1], ['#b4c9d9', '#2b3947']);
+	const cRail = interpolateColors(dusk, [0, 1], ['#3c3f44', '#16181b']);
+	const cGrass = interpolateColors(dusk, [0, 1], ['#6e8f4c', '#23301d']);
+	const cGrass2 = interpolateColors(dusk, [0, 1], ['#628446', '#1f2b1a']);
+	const cSoilL = interpolateColors(dusk, [0, 1], ['#6c4e34', '#2c2117']);
+	const cSoilR = interpolateColors(dusk, [0, 1], ['#523b28', '#1f1710']);
+	const cPit = interpolateColors(dusk, [0, 1], ['#4a3624', '#22190f']);
+	const cAsph = interpolateColors(dusk, [0, 1], ['#3e4147', '#1b1d21']);
+	const cWalk = interpolateColors(dusk, [0, 1], ['#c2bdb3', '#4d4a46']);
+	const cConc = interpolateColors(dusk, [0, 1], ['#a8a49d', '#45433f']);
+	const cTrunk = interpolateColors(dusk, [0, 1], ['#5b4331', '#221911']);
+	const cLeaf1 = interpolateColors(dusk, [0, 1], ['#4d7838', '#1b2916']);
+	const cLeaf2 = interpolateColors(dusk, [0, 1], ['#41682e', '#162212']);
+	const cLeaf3 = interpolateColors(dusk, [0, 1], ['#73a050', '#25371d']);
 	const LIT = '#ffcf86';
 	const RED = '#c4271f';
 	const BP = 'rgba(160,196,230,'; // blueprint
@@ -245,39 +297,212 @@ export const Palazzo: React.FC = () => {
 		);
 	};
 
-	// ---------- griglia a terra ----------
-	const grid: string[] = [];
-	for (let g = -24; g <= 38; g += 2) {
-		grid.push(line([g, -20, 0], [g, 30, 0]));
-	}
-	for (let g = -20; g <= 30; g += 2) {
-		grid.push(line([-24, g, 0], [38, g, 0]));
-	}
-	const groundOp = gridIn * (1 - lowerOut) * (1 - endFade);
+	const ctxOp = (1 - ctxOut) * (1 - endFade);
+	const terrIn = interpolate(g, [0, 18], [0, 1], {...clamp, easing: outC});
+	const tz = -(1 - terrIn) * 3; // il lotto emerge dal basso
+	const quad = (a: V3, b: V3, c: V3, d: V3, fill: string, k?: string) => <polygon key={k} points={pts([a, b, c, d])} fill={fill} />;
+	const rect = (x0: number, x1: number, y0: number, y1: number, z: number, fill: string, k?: string) =>
+		quad([x0, y0, z], [x1, y0, z], [x1, y1, z], [x0, y1, z], fill, k);
 
-	// ---------- edifici di contesto (wireframe) ----------
-	const NEIGH: [number, number, number, number, number][] = [
-		[-15, -3, 9, 8, 15],
-		[19, -1, 8, 9, 21],
-		[-5, 15, 11, 6, 9],
-		[20, 14, 9, 7, 13],
-		[3, -17, 12, 8, 27],
-		[-17, 12, 8, 8, 18],
-	];
-	const wire = (x: number, y: number, w: number, d: number, h: number) => {
-		const c: V3[] = [
-			[x, y, 0], [x + w, y, 0], [x + w, y + d, 0], [x, y + d, 0],
-			[x, y, h], [x + w, y, h], [x + w, y + d, h], [x, y + d, h],
+	// ---------- terreno ----------
+	if (ctxOp > 0.001 && terrIn > 0) {
+		const z0 = tz;
+		const zb = tz - TD;
+		const n: React.ReactNode[] = [];
+		n.push(quad([TX0, TY1, zb], [TX1, TY1, zb], [TX1, TY1, z0], [TX0, TY1, z0], cSoilL, 'sl'));
+		n.push(quad([TX1, TY0, zb], [TX1, TY1, zb], [TX1, TY1, z0], [TX1, TY0, z0], cSoilR, 'sr'));
+		n.push(
+			<path
+				key="strati"
+				d={[0.6, 1.1].map((d) => line([TX0, TY1, z0 - d], [TX1, TY1, z0 - d]) + line([TX1, TY1, z0 - d], [TX1, TY0, z0 - d])).join('')}
+				stroke="rgba(0,0,0,0.22)"
+				strokeWidth={Math.max(1, S * 0.05)}
+			/>,
+		);
+		// bordo superiore in sezione (marciapiede, strada, prato)
+		const e = 0.28;
+		n.push(quad([TX0, TY1, z0 - e], [TX1, TY1, z0 - e], [TX1, TY1, z0], [TX0, TY1, z0], cWalk, 'eb'));
+		const bands: [number, number, string][] = [
+			[TY0, WALK[0], cGrass2],
+			[WALK[0], WALK[1], cWalk],
+			[ROAD[0], ROAD[1], cAsph],
+			[ROAD[1], TY1, cWalk],
 		];
-		const e = [[0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 7], [7, 4], [0, 4], [1, 5], [2, 6], [3, 7]];
-		return e.map(([a, b]) => line(c[a], c[b])).join('');
+		bands.forEach(([a, b, c], j) => n.push(quad([TX1, a, z0 - e], [TX1, b, z0 - e], [TX1, b, z0], [TX1, a, z0], c, 'er' + j)));
+		// superficie
+		n.push(rect(TX0, TX1, TY0, WALK[0], z0, cGrass, 'prato'));
+		n.push(
+			<path
+				key="falciatura"
+				d={[-3, -1, 1, 3, 5, 7, 9, 11, 13, 15, 17].map((x) => line([x, TY0, z0], [x, WALK[0], z0])).join('')}
+				stroke="rgba(255,255,255,0.045)"
+				strokeWidth={Math.max(2, S * 0.9)}
+			/>,
+		);
+		n.push(rect(TX0, TX1, WALK[0], WALK[1], z0, cWalk, 'marciapiede'));
+		n.push(
+			<path
+				key="lastre"
+				d={Array.from({length: 22}, (_, k) => TX0 + 0.5 + k)
+					.map((x) => line([x, WALK[0], z0], [x, WALK[1], z0]))
+					.join('')}
+				stroke="rgba(0,0,0,0.08)"
+				strokeWidth={1}
+			/>,
+		);
+		n.push(rect(TX0, TX1, ROAD[0], ROAD[1], z0, cAsph, 'strada'));
+		n.push(rect(TX0, TX1, ROAD[1], TY1, z0, cWalk, 'cordolo'));
+		n.push(
+			<path
+				key="mezzeria"
+				d={Array.from({length: 11}, (_, k) => TX0 + 0.4 + k * 2)
+					.map((x) => line([x, (ROAD[0] + ROAD[1]) / 2, z0], [x + 1.1, (ROAD[0] + ROAD[1]) / 2, z0]))
+					.join('')}
+				stroke={interpolateColors(dusk, [0, 1], ['#e8e4da', '#6b6861'])}
+				strokeWidth={Math.max(1.5, S * 0.12)}
+			/>,
+		);
+		// vialetto d'ingresso
+		n.push(rect(DOOR[0] - 0.2, DOOR[1] + 0.2, D, WALK[0], z0 + 0.005, cWalk, 'vialetto'));
+		// siepe lungo il fronte
+		n.push(
+			<path
+				key="siepe"
+				d={line([0.3, D + 1.55, z0 + 0.35], [DOOR[0] - 0.5, D + 1.55, z0 + 0.35]) + line([DOOR[1] + 0.5, D + 1.55, z0 + 0.35], [W - 0.3, D + 1.55, z0 + 0.35])}
+				stroke={cLeaf2}
+				strokeWidth={Math.max(2, S * 0.45)}
+				strokeLinecap="round"
+				opacity={interpolate(g, [20, 40], [0, 1], clamp)}
+			/>,
+		);
+		add(<g opacity={ctxOp * terrIn}>{n}</g>);
+		add(
+			<defs>
+				<clipPath id="terrClip">
+					<polygon points={pts([[TX0, TY0, z0], [TX1, TY0, z0], [TX1, WALK[0], z0], [TX0, WALK[0], z0]])} />
+				</clipPath>
+				<clipPath id="pitClip">
+					<polygon points={pts([[-PIT, -PIT, z0], [W + PIT, -PIT, z0], [W + PIT, D + PIT, z0], [-PIT, D + PIT, z0]])} />
+				</clipPath>
+			</defs>,
+		);
+	}
+
+	// ---------- picchettamento ----------
+	const stakeT = interpolate(g, [14, 26], [0, 1], {...clamp, easing: outC});
+	const stringT = interpolate(g, [22, 40], [0, 1], clamp);
+	const stakeOp = (1 - interpolate(g, [62, 74], [0, 1], clamp)) * (1 - endFade);
+	if (stakeT > 0 && stakeOp > 0) {
+		const SP: V2[] = [
+			[-0.7, -0.7],
+			[W + 0.7, -0.7],
+			[W + 0.7, D + 0.7],
+			[-0.7, D + 0.7],
+		];
+		const zs = 0.55;
+		const loop = SP.map((q, j) => line([q[0], q[1], zs], [SP[(j + 1) % 4][0], SP[(j + 1) % 4][1], zs])).join('');
+		add(
+			<g opacity={stakeOp}>
+				<path d={loop} stroke="#f5f1e8" strokeWidth={1.4} fill="none" pathLength={1} strokeDasharray={`${stringT} 1`} />
+				{SP.map((q, j) => {
+					const A = sc([q[0], q[1], 0]);
+					const B = sc([q[0], q[1], 0.9 * stakeT]);
+					return (
+						<g key={j}>
+							<line x1={A[0]} y1={A[1]} x2={B[0]} y2={B[1]} stroke="#d8c7a4" strokeWidth={Math.max(2, S * 0.12)} />
+							<circle cx={B[0]} cy={B[1]} r={Math.max(2.5, S * 0.12)} fill={RED} />
+						</g>
+					);
+				})}
+			</g>,
+		);
+	}
+
+	// ---------- scavo e getto delle fondazioni ----------
+	const dig = interpolate(g, [34, 58], [0, 1], {...clamp, easing: io});
+	const pour = interpolate(g, [56, 78], [0, 1], {...clamp, easing: outC});
+	if (dig > 0 && ctxOp > 0.001) {
+		const pd = 1.3 * dig;
+		const zc = -pd + 1.3 * pour;
+		add(
+			<g clipPath="url(#pitClip)" opacity={ctxOp}>
+				{rect(-PIT, W + PIT, -PIT, D + PIT, -pd, cPit, 'fondo')}
+				{quad([-PIT, -PIT, -pd], [-PIT, D + PIT, -pd], [-PIT, D + PIT, 0], [-PIT, -PIT, 0], cSoilL, 'pw1')}
+				{quad([-PIT, -PIT, -pd], [W + PIT, -PIT, -pd], [W + PIT, -PIT, 0], [-PIT, -PIT, 0], cSoilR, 'pw2')}
+				{pour > 0 && rect(-PIT, W + PIT, -PIT, D + PIT, zc, cConc, 'getto')}
+				{pour > 0 && (
+					<path
+						d={[2, 4, 6, 8, 10, 12].map((x) => line([x, -PIT, zc], [x, D + PIT, zc])).join('') + [2.5, 5, 7.5].map((y) => line([-PIT, y, zc], [W + PIT, y, zc])).join('')}
+						stroke="rgba(0,0,0,0.12)"
+						strokeWidth={1}
+						opacity={1 - pour * 0.6}
+					/>
+				)}
+			</g>,
+		);
+	}
+
+	// ---------- ombra portata ----------
+	let built = 0;
+	for (let i = 0; i < LEVELS; i++) {
+		const t = f - levelStart(i);
+		if (t < 0) break;
+		built = i * H + SLAB + (H - SLAB) * interpolate(t, [7, 19], [0, 1], clamp);
+	}
+	if (f > roofStart) built = Math.max(built, LEVELS * H + SLAB + 0.8 * interpolate(f - roofStart, [4, 14], [0, 1], clamp));
+	const shOp = 0.3 * (1 - dusk) * ctxOp * (1 - k1);
+	if (built > 0 && shOp > 0.001) {
+		const base: V2[] = [
+			[0, 0],
+			[W, 0],
+			[W, D],
+			[0, D],
+		];
+		const all: V2[] = [...base, ...base.map(([x, y]) => [x + built * 0.42, y - built * 0.62] as V2)];
+		all.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+		const cross = (o: V2, a: V2, b: V2) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+		const lo: V2[] = [];
+		const hi: V2[] = [];
+		for (const q of all) {
+			while (lo.length >= 2 && cross(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop();
+			lo.push(q);
+		}
+		for (const q of [...all].reverse()) {
+			while (hi.length >= 2 && cross(hi[hi.length - 2], hi[hi.length - 1], q) <= 0) hi.pop();
+			hi.push(q);
+		}
+		const hull = [...lo.slice(0, -1), ...hi.slice(0, -1)];
+		add(<polygon clipPath="url(#terrClip)" points={pts(hull.map(([x, y]) => [x, y, 0.01] as V3))} fill="#0b0f14" opacity={shOp} />);
+	}
+
+	// ---------- alberi ----------
+	const tree = ([x, y, h, r]: Tree, k: number) => {
+		const s = interpolate(g, [8 + k * 3, 34 + k * 3], [0, 1], {...clamp, easing: outC});
+		if (s <= 0 || ctxOp <= 0.001) return null;
+		const hh = h * s;
+		const rr = r * s;
+		const B = sc([x, y, tz]);
+		const T = sc([x, y, tz + hh * 0.55]);
+		const c1 = sc([x, y, tz + hh * 0.66]);
+		const c2 = sc([x - 0.35, y + 0.3, tz + hh * 0.86]);
+		const c3 = sc([x + 0.3, y - 0.3, tz + hh * 0.76]);
+		const sh = sc([x + 0.7, y - 1.0, tz]);
+		return (
+			<g key={'t' + k} opacity={ctxOp}>
+				<ellipse cx={sh[0]} cy={sh[1]} rx={rr * S * 0.95} ry={rr * S * 0.5} fill="#000" opacity={0.2 * (1 - dusk * 0.7)} />
+				<line x1={B[0]} y1={B[1]} x2={T[0]} y2={T[1]} stroke={cTrunk} strokeWidth={Math.max(1.5, 0.22 * S)} strokeLinecap="round" />
+				<circle cx={c1[0]} cy={c1[1]} r={rr * S} fill={cLeaf1} />
+				<circle cx={c3[0]} cy={c3[1]} r={rr * S * 0.78} fill={cLeaf2} />
+				<circle cx={c2[0]} cy={c2[1]} r={rr * S * 0.7} fill={cLeaf3} />
+			</g>
+		);
 	};
-	const neighIn = interpolate(f, [8, 40], [0, 1], clamp);
+	add(<g>{TREES_BACK.map((t, k) => tree(t, k))}</g>);
 
 	// ---------- tracciato fantasma ----------
 	const TOPZ = LEVELS * H + SLAB;
-	const ghostDraw = interpolate(f, [4, 34], [0, 1], {...clamp, easing: outC});
-	const ghostOp = interpolate(f, [4, 14], [0, 1], clamp) * (1 - interpolate(f, [170, 215], [0, 1], clamp));
+	const ghostDraw = interpolate(g, [36, 70], [0, 1], {...clamp, easing: outC});
+	const ghostOp = interpolate(g, [36, 46], [0, 1], clamp) * (1 - interpolate(f, [170, 215], [0, 1], clamp));
 	const ghostEdges: string[] = [];
 	{
 		const c: V3[] = [
@@ -293,23 +518,6 @@ export const Palazzo: React.FC = () => {
 		}
 	}
 
-	add(
-		<g opacity={(1 - ctxOut) * neighIn * 0.55}>
-			<path d={NEIGH.map((n) => wire(...n)).join('')} stroke={BP + '0.28)'} strokeWidth={1} fill="none" />
-		</g>,
-	);
-	add(
-		<g opacity={groundOp}>
-			<path d={grid.join('')} stroke={BP + '0.09)'} strokeWidth={1} fill="none" mask="url(#gridMask)" />
-			<polygon
-				points={pts([[-0.6, -0.6, 0], [W + 0.6, -0.6, 0], [W + 0.6, D + 2, 0], [-0.6, D + 2, 0]])}
-				fill={BP + '0.05)'}
-				stroke={BP + '0.45)'}
-				strokeWidth={1}
-				strokeDasharray="6 6"
-			/>
-		</g>,
-	);
 	add(
 		<path
 			d={ghostEdges.join('')}
@@ -358,6 +566,30 @@ export const Palazzo: React.FC = () => {
 					</g>,
 				);
 			}
+			// pannelli fotovoltaici
+			const pv = interpolate(t, [16, 30], [0, 1], {...clamp, easing: outC});
+			if (pv > 0) {
+				const cPV = interpolateColors(dusk, [0, 1], ['#26405e', '#101a26']);
+				const cPV2 = interpolateColors(dusk, [0, 1], ['#4f6f93', '#1c2a3a']);
+				const rows = [0.7, 1.75, 2.8, 10.4, 11.45, 12.5];
+				add(
+					<g opacity={op * pv}>
+						{rows.map((x0, k) => {
+							const x1 = x0 + 0.85;
+							const zA = top + 0.2;
+							const zB = top + 0.2 + 0.45 * pv;
+							const y0 = 1.0;
+							const y1 = D - 1.0;
+							return (
+								<g key={k}>
+									<polygon points={pts([[x0, y0, zA], [x1, y0, zB], [x1, y1, zB], [x0, y1, zA]])} fill={cPV} stroke={cPV2} strokeWidth={1} />
+									<path d={[2, 4, 6].map((yy) => line([x0, yy, zA], [x1, yy, zB])).join('')} stroke={cPV2} strokeWidth={1} />
+								</g>
+							);
+						})}
+					</g>,
+				);
+			}
 			const ph = 0.8 * interpolate(t, [4, 14], [0, 1], clamp);
 			if (ph > 0.01) {
 				add(
@@ -388,33 +620,75 @@ export const Palazzo: React.FC = () => {
 			const sill = i === 0 ? 0.25 : 0.55;
 			const head = i === 0 ? 2.6 : 2.45;
 			const nodes: React.ReactNode[] = [];
-			nodes.push(<polygon key="r" points={pts([[W, 0, zb], [W, D, zb], [W, D, zt], [W, 0, zt]])} fill={cRight} />);
-			nodes.push(<polygon key="l" points={pts([[0, D, zb], [W, D, zb], [W, D, zt], [0, D, zt]])} fill={cLeft} />);
+			nodes.push(<polygon key="r" points={pts([[W, 0, zb], [W, D, zb], [W, D, zt], [W, 0, zt]])} fill={i === 0 ? cStoneR : cRight} />);
+			nodes.push(<polygon key="l" points={pts([[0, D, zb], [W, D, zb], [W, D, zt], [0, D, zt]])} fill={i === 0 ? cStoneL : cLeft} />);
+			if (i === 0) {
+				// fughe del rivestimento in pietra
+				const joints = [0.7, 1.4, 2.1].filter((d) => zb + d < zt);
+				nodes.push(
+					<path
+						key="fughe"
+						d={joints.map((d) => line([0, D + 0.01, zb + d], [W, D + 0.01, zb + d]) + line([W + 0.01, D, zb + d], [W + 0.01, 0, zb + d])).join('')}
+						stroke="rgba(0,0,0,0.18)"
+						strokeWidth={1}
+					/>,
+				);
+			}
 			const wz0 = zb + sill;
 			const wz1 = Math.min(zt, zb + head);
 			if (wz1 > wz0 && winT > 0) {
-				WIN_FRONT.forEach(([a, b], j) => {
+				const fr = 0.08;
+				(i === 0 ? WIN_GROUND : WIN_FRONT).forEach(([a, b], j) => {
 					const lit = isF ? litFor(j) : 0;
-					const g = interpolateColors(lit, [0, 1], [cGlass, LIT]);
+					const y = D + 0.01;
 					nodes.push(
-						<g key={'wf' + j} opacity={winT * (0.85 + 0.15 * rnd(i * 10 + j))}>
-							<polygon points={pts([[a, D + 0.01, wz0], [b, D + 0.01, wz0], [b, D + 0.01, wz1], [a, D + 0.01, wz1]])} fill={g} />
-							<path d={line([(a + b) / 2, D + 0.01, wz0], [(a + b) / 2, D + 0.01, wz1])} stroke={interpolateColors(dusk, [0, 1], ['#2b3946', '#0c1117'])} strokeWidth={1.2} />
+						<g key={'wf' + j} opacity={winT}>
+							<polygon points={pts([[a, y, wz0], [b, y, wz0], [b, y, wz1], [a, y, wz1]])} fill={cFrame} />
+							<polygon points={pts([[a + fr, y, wz0 + fr], [b - fr, y, wz0 + fr], [b - fr, y, wz1 - fr], [a + fr, y, wz1 - fr]])} fill="url(#glassF)" opacity={0.85 + 0.15 * rnd(i * 10 + j)} />
+							{lit > 0 && <polygon points={pts([[a + fr, y, wz0 + fr], [b - fr, y, wz0 + fr], [b - fr, y, wz1 - fr], [a + fr, y, wz1 - fr]])} fill={LIT} opacity={lit} />}
+							<path d={line([(a + b) / 2, y, wz0], [(a + b) / 2, y, wz1])} stroke={cFrame} strokeWidth={Math.max(1.2, S * 0.06)} />
 						</g>,
 					);
 				});
+				if (i === 0) {
+					const [a, b] = DOOR;
+					const y = D + 0.01;
+					const dz1 = Math.min(zt, zb + 2.45);
+					nodes.push(
+						<g key="porta" opacity={winT}>
+							<polygon points={pts([[a, y, zb], [b, y, zb], [b, y, dz1], [a, y, dz1]])} fill={cFrame} />
+							<polygon points={pts([[a + fr, y, zb], [b - fr, y, zb], [b - fr, y, dz1 - fr], [a + fr, y, dz1 - fr]])} fill="url(#glassF)" opacity={0.75} />
+							<path d={line([(a + b) / 2, y, zb], [(a + b) / 2, y, dz1])} stroke={cFrame} strokeWidth={Math.max(1.2, S * 0.06)} />
+						</g>,
+					);
+				}
 				WIN_SIDE.forEach(([a, b], j) => {
 					const lit = isF ? litFor(j + 3) : 0;
-					const g = interpolateColors(lit, [0, 1], [cGlass2, '#f3b866']);
+					const x = W + 0.01;
 					nodes.push(
-						<g key={'ws' + j} opacity={winT * (0.85 + 0.15 * rnd(i * 20 + j))}>
-							<polygon points={pts([[W + 0.01, a, wz0], [W + 0.01, b, wz0], [W + 0.01, b, wz1], [W + 0.01, a, wz1]])} fill={g} />
-							<path d={line([W + 0.01, (a + b) / 2, wz0], [W + 0.01, (a + b) / 2, wz1])} stroke={interpolateColors(dusk, [0, 1], ['#26323d', '#0a0e13'])} strokeWidth={1.2} />
+						<g key={'ws' + j} opacity={winT}>
+							<polygon points={pts([[x, a, wz0], [x, b, wz0], [x, b, wz1], [x, a, wz1]])} fill={cFrame} />
+							<polygon points={pts([[x, a + fr, wz0 + fr], [x, b - fr, wz0 + fr], [x, b - fr, wz1 - fr], [x, a + fr, wz1 - fr]])} fill="url(#glassS)" opacity={0.85 + 0.15 * rnd(i * 20 + j)} />
+							{lit > 0 && <polygon points={pts([[x, a + fr, wz0 + fr], [x, b - fr, wz0 + fr], [x, b - fr, wz1 - fr], [x, a + fr, wz1 - fr]])} fill="#f3b866" opacity={lit} />}
+							<path d={line([x, (a + b) / 2, wz0], [x, (a + b) / 2, wz1])} stroke={cFrame} strokeWidth={Math.max(1.2, S * 0.06)} />
 						</g>,
 					);
 				});
 			}
 			add(<g opacity={fop}>{nodes}</g>);
+
+			// pensilina d'ingresso
+			if (i === 0 && wallT > 0.95) {
+				const cz = zb + 2.55;
+				const cy = D + 1.3 * winT;
+				add(
+					<g opacity={fop}>
+						<polygon points={pts([[DOOR[0] - 0.4, D, cz + 0.16], [DOOR[1] + 0.4, D, cz + 0.16], [DOOR[1] + 0.4, cy, cz + 0.16], [DOOR[0] - 0.4, cy, cz + 0.16]])} fill={cTop} />
+						<polygon points={pts([[DOOR[0] - 0.4, cy, cz], [DOOR[1] + 0.4, cy, cz], [DOOR[1] + 0.4, cy, cz + 0.16], [DOOR[0] - 0.4, cy, cz + 0.16]])} fill={RED} />
+						<polygon points={pts([[DOOR[1] + 0.4, D, cz], [DOOR[1] + 0.4, cy, cz], [DOOR[1] + 0.4, cy, cz + 0.16], [DOOR[1] + 0.4, D, cz + 0.16]])} fill="#8f1b15" />
+					</g>,
+				);
+			}
 
 			// alone del piano illuminato
 			if (isF) {
@@ -448,9 +722,20 @@ export const Palazzo: React.FC = () => {
 					<polygon points={pts([[BAL.x1, D, bz0], [BAL.x1, y1, bz0], [BAL.x1, y1, bt], [BAL.x1, D, bt]])} fill={cSlabR} />
 					{rail > 0 && (
 						<>
-							<polygon points={pts([[BAL.x0, y1, bt], [BAL.x1, y1, bt], [BAL.x1, y1, bt + rail], [BAL.x0, y1, bt + rail]])} fill="rgba(170,205,230,0.18)" />
-							<polygon points={pts([[BAL.x1, D, bt], [BAL.x1, y1, bt], [BAL.x1, y1, bt + rail], [BAL.x1, D, bt + rail]])} fill="rgba(170,205,230,0.12)" />
-							<path d={line([BAL.x0, y1, bt + rail], [BAL.x1, y1, bt + rail]) + line([BAL.x1, y1, bt + rail], [BAL.x1, D, bt + rail])} stroke={interpolateColors(dusk, [0, 1], ['#f2efe9', '#8d8984'])} strokeWidth={1.6} />
+							<path
+								d={
+									Array.from({length: Math.floor((BAL.x1 - BAL.x0) / 0.3) + 1}, (_, k) => BAL.x0 + k * 0.3)
+										.map((x) => line([x, y1, bt], [x, y1, bt + rail]))
+										.join('') +
+									Array.from({length: 5}, (_, k) => D + 0.28 * (k + 1))
+										.filter((y) => y <= y1)
+										.map((y) => line([BAL.x1, y, bt], [BAL.x1, y, bt + rail]))
+										.join('')
+								}
+								stroke={cRail}
+								strokeWidth={Math.max(1, S * 0.035)}
+							/>
+							<path d={line([BAL.x0, y1, bt + rail], [BAL.x1, y1, bt + rail]) + line([BAL.x1, y1, bt + rail], [BAL.x1, D, bt + rail])} stroke={cRail} strokeWidth={Math.max(1.6, S * 0.08)} />
 						</>
 					)}
 				</g>,
@@ -473,6 +758,34 @@ export const Palazzo: React.FC = () => {
 		}
 	}
 	if (laser) add(laser);
+
+	// ---------- alberi in primo piano e lampioni ----------
+	add(<g>{TREES_FRONT.map((t, k) => tree(t, k + TREES_BACK.length))}</g>);
+	const lampIn = interpolate(g, [24, 44], [0, 1], {...clamp, easing: outC});
+	const lampOn = interpolate(f, [195, 225], [0, 1], clamp);
+	if (lampIn > 0 && ctxOp > 0.001) {
+		add(
+			<g opacity={ctxOp}>
+				{LAMPS.map((x, k) => {
+					const y = WALK[1] - 0.25;
+					const hgt = 3.6 * lampIn;
+					const B = sc([x, y, tz]);
+					const T = sc([x, y, tz + hgt]);
+					const Hd = sc([x, y - 0.7, tz + hgt - 0.05]);
+					const pool = sc([x, y - 0.7, tz]);
+					return (
+						<g key={k}>
+							{lampOn > 0 && <ellipse cx={pool[0]} cy={pool[1]} rx={S * 1.9} ry={S * 0.95} fill="url(#pool)" opacity={lampOn} />}
+							<line x1={B[0]} y1={B[1]} x2={T[0]} y2={T[1]} stroke="#2a2d31" strokeWidth={Math.max(1.5, S * 0.09)} />
+							<line x1={T[0]} y1={T[1]} x2={Hd[0]} y2={Hd[1]} stroke="#2a2d31" strokeWidth={Math.max(1.5, S * 0.07)} />
+							<circle cx={Hd[0]} cy={Hd[1]} r={Math.max(2, S * 0.13)} fill={interpolateColors(lampOn, [0, 1], ['#55595f', '#fff1cf'])} />
+							{lampOn > 0 && <circle cx={Hd[0]} cy={Hd[1]} r={S * 0.9} fill={LIT} opacity={0.35 * lampOn} filter="url(#glow)" />}
+						</g>
+					);
+				})}
+			</g>,
+		);
+	}
 
 	// ---------- pianta ----------
 	function renderPlan(zb: number) {
@@ -664,6 +977,19 @@ export const Palazzo: React.FC = () => {
 					<radialGradient id="warm" cx="50%" cy="60%" r="70%">
 						<stop offset="0%" stopColor="#ffd08a" stopOpacity={0.9} />
 						<stop offset="100%" stopColor="#ffb25e" stopOpacity={0.15} />
+					</radialGradient>
+					<linearGradient id="glassF" x1="0" y1="0" x2="0.35" y2="1">
+						<stop offset="0%" stopColor={cGlassTop} />
+						<stop offset="55%" stopColor={cGlass} />
+						<stop offset="100%" stopColor={cGlass2} />
+					</linearGradient>
+					<linearGradient id="glassS" x1="0" y1="0" x2="0.35" y2="1">
+						<stop offset="0%" stopColor={interpolateColors(dusk, [0, 1], ['#8aa2b6', '#212d39'])} />
+						<stop offset="100%" stopColor={cGlass2} />
+					</linearGradient>
+					<radialGradient id="pool" cx="50%" cy="50%" r="50%">
+						<stop offset="0%" stopColor="#ffcf86" stopOpacity={0.45} />
+						<stop offset="100%" stopColor="#ffcf86" stopOpacity={0} />
 					</radialGradient>
 					<filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
 						<feGaussianBlur stdDeviation={18} />

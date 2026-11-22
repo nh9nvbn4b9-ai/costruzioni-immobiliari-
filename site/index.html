@@ -382,7 +382,7 @@ footer{background:#0b0d11;color:var(--paper-soft);padding-block:56px calc(40px +
   <img class="poster" id="heroPoster" src="assets/poster-landscape.jpg" alt="" aria-hidden="true">
   <video id="heroVideo" muted playsinline autoplay loop preload="auto" aria-hidden="true"></video>
   <div class="shade"></div>
-  <div class="hud" id="hud" aria-hidden="true"><b></b><span id="hudText">Tracciamento · quota ±0,00 m</span></div>
+  <div class="hud" id="hud" aria-hidden="true"><b></b><span id="hudText">Il terreno · lotto edificabile</span></div>
   <div class="wrap hero-inner">
     <div class="hero-copy" id="heroCopy">
       <p class="eyebrow">Impresa edile · Milano</p>
@@ -797,17 +797,20 @@ footer{background:#0b0d11;color:var(--paper-soft);padding-block:56px calc(40px +
   window.addEventListener('resize',function(){clearTimeout(pickVideo.t);pickVideo.t=setTimeout(pickVideo,250);});
   v.addEventListener('playing',function(){poster.style.opacity='0';poster.style.transition='opacity .6s';});
 
-  /* HUD sincronizzato con l'animazione Remotion (30 fps, 450 fotogrammi) */
+  /* HUD sincronizzato con l'animazione Remotion (30 fps, 500 fotogrammi) */
   var hud=document.getElementById('hudText'), lastHud='';
   function fmt(n){return n.toFixed(2).replace('.',',');}
   function hudTick(){
     if(!v.paused && v.readyState>1){
       var fr=Math.floor(v.currentTime*30), t;
-      if(fr<30) t='Tracciamento · quota ±0,00 m';
-      else if(fr<176){var lv=Math.min(8,Math.floor((fr-30)/18)+1);t='Livello '+String(lv).padStart(2,'0')+'/08 · quota +'+fmt(lv*3.2)+' m';}
-      else if(fr<235) t='Edificio completato · +25,60 m';
-      else if(fr<300) t='Piano 5° · zoom sull’appartamento';
-      else if(fr<420) t='Pianta piano 5° · 140 m²';
+      if(fr<14) t='Il terreno · lotto edificabile';
+      else if(fr<34) t='Picchettamento · quota ±0,00 m';
+      else if(fr<56) t='Scavo · quota −1,30 m';
+      else if(fr<80) t='Getto delle fondazioni';
+      else if(fr<226){var lv=Math.min(8,Math.floor((fr-80)/18)+1);t='Livello '+String(lv).padStart(2,'0')+'/08 · quota +'+fmt(lv*3.2)+' m';}
+      else if(fr<285) t='Edificio completato · +25,60 m';
+      else if(fr<350) t='Piano 5° · zoom sull’appartamento';
+      else if(fr<470) t='Pianta piano 5° · 140 m²';
       else t='Nuovo progetto…';
       if(t!==lastHud){hud.textContent=t;lastHud=t;}
     }
