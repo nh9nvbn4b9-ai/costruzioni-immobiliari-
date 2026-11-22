@@ -1,0 +1,990 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Costruzioni Immobiliari S.r.l.</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Costruzioni Immobiliari S.r.l. – impresa edile a Milano: nuove costruzioni, ristrutturazioni, rifacimento bagni, impermeabilizzazioni e impianti. Sempre aperti H24.">
+<meta name="theme-color" content="#111419">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: tavole di progetto impilate — fasce piene alternate calce / grafite, griglia a 12 colonne, annotazioni tecniche in mono */
+:root{
+  --grafite:#111419; --grafite-2:#181c23; --grafite-3:#232933; --linea-scura:#2e3540;
+  --calce:#f1ede7; --calce-2:#e7e1d8; --linea-chiara:#d3ccc1;
+  --mattone:#c4271f; --mattone-2:#a11d16; --lampada:#ffcf86; --vetro:#8fc4e8; --wa:#25d366;
+  --ink:#16191e; --ink-soft:#585b60; --paper:#f4f1eb; --paper-soft:#a8adb5;
+  --f-display:"Archivo","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --gut-l:max(16px, env(safe-area-inset-left, 0px));
+  --gut-r:max(16px, env(safe-area-inset-right, 0px));
+  --wrap:1240px;
+  --ease:cubic-bezier(.2,.7,.1,1);
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+fieldset{min-width:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--grafite);color:var(--paper);font-family:var(--f-body);font-size:17px;line-height:1.6;overflow-x:hidden;overflow-x:clip;-webkit-font-smoothing:antialiased}
+img,video{max-width:100%;display:block}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--lampada);outline-offset:3px;border-radius:4px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--grafite)}
+
+.wrap{max-width:var(--wrap);margin:0 auto;padding-left:var(--gut-l);padding-right:var(--gut-r)}
+.eyebrow{font-family:var(--f-mono);font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;display:inline-flex;align-items:center;gap:.7em;margin:0 0 1.2rem}
+.eyebrow::before{content:"";width:.62em;height:.62em;background:var(--mattone);display:inline-block;transform:rotate(45deg)}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+h2{font-size:clamp(2.2rem,5.6vw,4.4rem);font-weight:800;font-stretch:118%;line-height:.98;letter-spacing:-.015em}
+h3{font-size:clamp(1.35rem,2.4vw,1.8rem);font-weight:750;font-stretch:112%;line-height:1.1}
+p{margin:0}
+.mono{font-family:var(--f-mono)}
+
+/* progress bar */
+.progress{position:fixed;left:0;top:env(safe-area-inset-top,0px);height:3px;width:100%;transform-origin:0 50%;transform:scaleX(0);background:var(--mattone);z-index:70}
+
+/* ---------- header ---------- */
+.site-header{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:50;transition:background .4s,backdrop-filter .4s,box-shadow .4s}
+.site-header .bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;height:72px}
+.site-header.solid{background:rgba(17,20,25,.82);backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3);box-shadow:0 1px 0 rgba(255,255,255,.06)}
+.brand{display:flex;align-items:center;text-decoration:none}
+.brand img{height:44px;width:auto}
+.nav{display:flex;gap:.2rem;align-items:center}
+.nav a{font-size:.92rem;font-weight:500;text-decoration:none;padding:.5rem .8rem;border-radius:999px;color:var(--paper);opacity:.85;transition:opacity .2s,background .2s}
+.nav a:hover{opacity:1;background:rgba(255,255,255,.08)}
+.nav a.cta{background:var(--mattone);opacity:1;margin-left:.4rem}
+.nav a.cta:hover{background:var(--mattone-2)}
+.menu-btn{display:none;background:none;border:1px solid rgba(255,255,255,.25);color:var(--paper);border-radius:999px;height:44px;padding:0 1rem;font:500 .9rem var(--f-body);gap:.6rem;align-items:center;cursor:pointer}
+.menu-btn i{display:block;width:18px;height:2px;background:currentColor;position:relative;transition:transform .3s}
+.menu-btn i::after{content:"";position:absolute;left:0;top:6px;width:18px;height:2px;background:currentColor;transition:transform .3s,top .3s}
+.menu-btn[aria-expanded="true"] i{transform:translateY(3px) rotate(45deg)}
+.menu-btn[aria-expanded="true"] i::after{top:0;transform:rotate(-90deg)}
+
+.mobile-nav{position:fixed;inset:0;z-index:45;background:var(--grafite);padding:calc(env(safe-area-inset-top,0px) + 96px) var(--gut-r) calc(env(safe-area-inset-bottom,0px) + 32px) var(--gut-l);display:flex;flex-direction:column;gap:.2rem;clip-path:circle(0% at calc(100% - 48px) 36px);transition:clip-path .6s var(--ease);visibility:hidden}
+.mobile-nav.open{clip-path:circle(150% at calc(100% - 48px) 36px);visibility:visible}
+.mobile-nav a{font-family:var(--f-display);font-weight:800;font-stretch:118%;font-size:clamp(2rem,9vw,3rem);text-decoration:none;line-height:1.15;padding:.25rem 0;border-bottom:1px solid var(--linea-scura);transform:translateY(30px);opacity:0;transition:transform .6s var(--ease),opacity .6s}
+.mobile-nav.open a{transform:none;opacity:1}
+.mobile-nav a span{font-family:var(--f-mono);font-size:.8rem;font-weight:400;color:var(--paper-soft);margin-right:1rem;vertical-align:middle;letter-spacing:.1em}
+
+/* ---------- hero ---------- */
+.hero{position:relative;min-height:100vh;min-height:100svh;display:flex;align-items:flex-end;overflow:hidden;background:var(--grafite)}
+.hero video,.hero .poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero .shade{position:absolute;inset:0;background:
+  linear-gradient(90deg,rgba(10,12,16,.88) 0%,rgba(10,12,16,.55) 38%,rgba(10,12,16,0) 62%),
+  linear-gradient(0deg,rgba(10,12,16,.75) 0%,rgba(10,12,16,0) 40%)}
+.hero-inner{position:relative;width:100%;padding-block:120px 64px}
+.hero-copy{max-width:640px}
+.hero .sm{display:none}
+.hud{position:absolute;z-index:2;top:calc(env(safe-area-inset-top,0px) + 100px);left:max(var(--gut-l),calc((100vw - var(--wrap))/2 + 16px));display:inline-flex;align-items:center;gap:.6rem;font-family:var(--f-mono);font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--vetro);border:1px solid rgba(143,196,232,.35);padding:.42rem .8rem;border-radius:999px;background:rgba(10,14,20,.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);font-variant-numeric:tabular-nums}
+.hud b{width:8px;height:8px;border-radius:50%;background:var(--mattone);box-shadow:0 0 0 0 rgba(196,39,31,.7);animation:pulse 1.6s infinite}
+@keyframes pulse{to{box-shadow:0 0 0 10px rgba(196,39,31,0)}}
+.hero .eyebrow{color:var(--paper-soft)}
+.hero h1{font-size:clamp(2.7rem,7.2vw,6.2rem);font-weight:820;font-stretch:115%;line-height:.94;letter-spacing:-.02em;perspective:600px}
+.hero h1 em{font-style:normal;color:var(--lampada)}
+.hero .lead{margin-top:1.4rem;font-size:clamp(1.02rem,1.6vw,1.2rem);color:#d6d8dc;max-width:34em}
+.btns{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:2rem}
+.btn{display:inline-flex;align-items:center;gap:.6rem;font:600 1rem var(--f-body);text-decoration:none;padding:.95rem 1.4rem;border-radius:999px;border:1px solid transparent;cursor:pointer;transition:transform .25s var(--ease),background .25s,border-color .25s,color .25s;will-change:transform}
+.btn:hover{transform:translateY(-2px)}
+.btn-red{background:var(--mattone);color:#fff}
+.btn-red:hover{background:var(--mattone-2)}
+.btn-ghost{border-color:rgba(255,255,255,.35);color:var(--paper)}
+.btn-ghost:hover{border-color:#fff;background:rgba(255,255,255,.06)}
+.btn svg{width:18px;height:18px;flex:none}
+.scroll-cue{position:absolute;right:var(--gut-r);bottom:28px;font-family:var(--f-mono);font-size:.7rem;letter-spacing:.2em;color:var(--paper-soft);writing-mode:vertical-rl;display:flex;align-items:center;gap:.8rem;text-decoration:none}
+.scroll-cue::after{content:"";width:1px;height:56px;background:linear-gradient(var(--paper-soft),transparent);animation:cue 2s infinite}
+@keyframes cue{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* split words */
+.split .w{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.06em;margin-bottom:-.06em}
+.split .w>span{display:inline-block;transform-origin:50% 100%}
+.js .split.pre .w>span{transform:translateY(105%);opacity:0}
+.js .split.go .w>span{animation:wordIn 1s var(--ease) both;animation-delay:calc(var(--i)*70ms + var(--d,0ms))}
+@keyframes wordIn{from{transform:translateY(105%) rotateX(-75deg);opacity:0}to{transform:none;opacity:1}}
+
+/* reveal */
+.js .rv{transition:opacity .9s var(--ease),transform .9s var(--ease);transition-delay:var(--rd,0ms)}
+.js .rv.pre{opacity:0;transform:translateY(40px)}
+
+/* ---------- ribbon ---------- */
+.ribbon{background:var(--mattone);color:#fff;overflow:hidden;padding-block:.9rem;position:relative;z-index:2}
+.ribbon .track{display:flex;gap:2.4rem;width:max-content;animation:marquee 38s linear infinite;font-family:var(--f-display);font-weight:800;font-stretch:125%;font-size:clamp(1.1rem,2.4vw,1.6rem);text-transform:uppercase;letter-spacing:.02em;white-space:nowrap}
+.ribbon .track span{display:inline-flex;align-items:center;gap:2.4rem}
+.ribbon .track span::after{content:"";width:.5em;height:.5em;border:2px solid #fff;transform:rotate(45deg)}
+@keyframes marquee{to{transform:translateX(-50%)}}
+
+/* ---------- sections ---------- */
+section{position:relative}
+.band{padding-block:clamp(72px,11vw,140px)}
+.light{background:var(--calce);color:var(--ink)}
+.light .eyebrow{color:var(--ink-soft)}
+.dark{background:var(--grafite);color:var(--paper)}
+.dark .eyebrow{color:var(--paper-soft)}
+.sheet-label{position:absolute;top:22px;right:var(--gut-r);font-family:var(--f-mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;opacity:.55}
+
+/* chi siamo */
+.about{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:clamp(24px,4vw,64px);align-items:start}
+.about-text{grid-column:1 / span 7;min-width:0}
+.about-media{grid-column:8 / span 5;min-width:0;perspective:1200px}
+.statement{font-family:var(--f-display);font-weight:600;font-stretch:100%;font-size:clamp(1.45rem,2.7vw,2.15rem);line-height:1.22;letter-spacing:-.01em;margin-top:1.6rem;max-width:30em}
+.statement strong{font-weight:820;font-stretch:112%}
+.statement mark{background:linear-gradient(transparent 62%,rgba(196,39,31,.22) 62%);color:inherit;padding:0 .08em}
+.profile{margin-top:2.6rem;border-top:1px solid var(--linea-chiara);padding-top:1.6rem;display:grid;grid-template-columns:180px minmax(0,1fr);gap:1rem 2rem}
+.profile dt{font-family:var(--f-mono);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);padding-top:.25rem}
+.profile dd{margin:0;max-width:62ch}
+.tags{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.tag{font-family:var(--f-mono);font-size:.76rem;letter-spacing:.04em;border:1px solid var(--linea-chiara);padding:.32rem .7rem;border-radius:999px;background:#fbf9f5;transition:background .25s,color .25s,border-color .25s,transform .25s}
+.tag:hover{background:var(--ink);color:var(--calce);border-color:var(--ink);transform:translateY(-2px)}
+.tag.red{border-color:rgba(196,39,31,.45);color:var(--mattone-2)}
+.photo3d{position:relative;transform-style:preserve-3d;transition:transform .2s linear}
+.photo3d .frame{position:absolute;inset:18px -18px -18px 18px;border:2px solid var(--mattone);transform:translateZ(-60px);border-radius:6px}
+.photo3d img{width:100%;aspect-ratio:4/5;object-fit:cover;object-position:38% 50%;border-radius:6px;box-shadow:0 40px 80px -30px rgba(17,20,25,.5);transform:translateZ(0)}
+.photo3d .badge{position:absolute;left:-22px;bottom:34px;transform:translateZ(80px);background:var(--grafite);color:var(--paper);padding:1rem 1.2rem;border-radius:6px;box-shadow:0 20px 40px -12px rgba(0,0,0,.5);max-width:250px}
+.badge .mono{font-size:.7rem;letter-spacing:.12em;color:var(--paper-soft);text-transform:uppercase;display:block}
+.badge strong{font-family:var(--f-display);font-stretch:115%;font-size:1.25rem;font-weight:800;line-height:1.15;display:block;margin-top:.25rem}
+.logo-card{margin-top:2.6rem;display:flex;align-items:center;gap:1.4rem;flex-wrap:wrap}
+.logo-card img{width:min(300px,70%);height:auto}
+.logo-card p{font-family:var(--f-mono);font-size:.78rem;letter-spacing:.08em;color:var(--ink-soft);text-transform:uppercase;line-height:1.5}
+
+/* servizi */
+.services-head{display:flex;justify-content:space-between;align-items:end;gap:2rem;flex-wrap:wrap;margin-bottom:clamp(36px,5vw,64px)}
+.services-head p{max-width:30em;color:var(--paper-soft)}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(18px,2.4vw,32px);perspective:1400px}
+.card{position:relative;background:var(--grafite-2);border:1px solid var(--linea-scura);border-radius:10px;overflow:hidden;transform-style:preserve-3d;transition:transform .5s var(--ease),border-color .3s;min-width:0}
+.card:hover{border-color:#47505e}
+.card .media{position:relative;aspect-ratio:16/10;overflow:hidden}
+.card .media img{width:100%;height:100%;object-fit:cover;transform:scale(1.06);transition:transform 1.2s var(--ease)}
+.card:hover .media img{transform:scale(1.12)}
+.card .media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(17,20,25,0) 45%,rgba(24,28,35,1) 100%)}
+.card .glare{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at var(--gx,50%) var(--gy,0%),rgba(255,255,255,.14),rgba(255,255,255,0) 45%);opacity:0;transition:opacity .3s;z-index:3}
+.card:hover .glare{opacity:1}
+.card .body{position:relative;padding:0 clamp(20px,2.6vw,36px) clamp(24px,3vw,40px);margin-top:-48px;z-index:2;transform:translateZ(40px)}
+.card .kicker{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--lampada)}
+.card h3{margin-top:.5rem;font-size:clamp(1.6rem,3vw,2.3rem)}
+.card .desc{margin-top:.9rem;color:#c9ccd1;max-width:40ch}
+.card ul{list-style:none;padding:0;margin:1.4rem 0 0;display:grid;gap:0;border-top:1px solid var(--linea-scura)}
+.card li{display:flex;align-items:center;gap:.9rem;padding:.75rem 0;border-bottom:1px solid var(--linea-scura);font-weight:500;transition:padding .3s var(--ease),color .3s}
+.card li::before{content:"";width:18px;height:2px;background:var(--mattone);flex:none;transition:width .3s var(--ease)}
+.card li:hover{padding-left:.4rem;color:#fff}
+.card li:hover::before{width:28px}
+
+/* preventivo */
+.quote-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:clamp(24px,4vw,64px);align-items:start}
+.quote-intro{grid-column:1 / span 5;min-width:0;position:sticky;top:110px}
+.quote-intro p.lead{margin-top:1.2rem;color:var(--ink-soft);max-width:34em}
+.quote-photo{margin-top:2rem;position:relative;border-radius:8px;overflow:hidden;aspect-ratio:16/11}
+.quote-photo img{width:100%;height:120%;object-fit:cover;will-change:transform}
+.quote-photo figcaption{position:absolute;left:12px;bottom:12px;font-family:var(--f-mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;background:rgba(17,20,25,.75);color:var(--paper);padding:.35rem .6rem;border-radius:4px}
+.steps{list-style:none;padding:0;margin:1.8rem 0 0;display:grid;gap:.8rem}
+.steps li{display:grid;grid-template-columns:32px minmax(0,1fr);gap:.8rem;align-items:start;color:var(--ink-soft)}
+.steps li b{font-family:var(--f-mono);font-size:.8rem;font-weight:500;color:var(--mattone);border:1px solid rgba(196,39,31,.4);border-radius:50%;width:28px;height:28px;display:grid;place-items:center}
+.form-card{grid-column:6 / span 7;min-width:0;background:#fbfaf7;border:1px solid var(--linea-chiara);border-radius:12px;padding:clamp(20px,3.2vw,44px);box-shadow:0 30px 60px -40px rgba(17,20,25,.35)}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.1rem 1.2rem}
+.field{display:flex;flex-direction:column;gap:.4rem;min-width:0}
+.field.full{grid-column:1 / -1}
+.field label{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
+.field input,.field select,.field textarea{font:inherit;font-size:1rem;color:var(--ink);background:#fff;border:1px solid var(--linea-chiara);border-radius:8px;padding:.85rem .95rem;transition:border-color .2s,box-shadow .2s;width:100%;min-width:0}
+.field textarea{min-height:130px;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 4px rgba(22,25,30,.08)}
+.field input[aria-invalid="true"],.field select[aria-invalid="true"]{border-color:var(--mattone)}
+.chips{display:flex;flex-wrap:wrap;gap:.45rem;position:relative}
+.chips input{position:absolute;left:0;top:0;width:1px;height:1px;margin:0;opacity:0;pointer-events:none}
+.chips label{font-family:var(--f-body);font-size:.9rem;letter-spacing:0;text-transform:none;color:var(--ink);border:1px solid var(--linea-chiara);background:#fff;border-radius:999px;padding:.45rem .85rem;cursor:pointer;transition:background .2s,color .2s,border-color .2s}
+.chips input:checked+label{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chips input:focus-visible+label{outline:2px solid var(--mattone);outline-offset:2px}
+.consent{display:flex;gap:.7rem;align-items:flex-start;font-size:.88rem;color:var(--ink-soft)}
+.consent input{margin-top:.25rem;accent-color:var(--mattone);width:18px;height:18px;flex:none}
+.form-actions{display:flex;flex-wrap:wrap;gap:.8rem;align-items:center;margin-top:1.4rem}
+.btn-dark{background:var(--ink);color:#fff}
+.btn-dark:hover{background:#000}
+.btn-wa{background:var(--wa);color:#08341a}
+.btn-wa:hover{background:#1fbe5a}
+.form-error{color:var(--mattone-2);font-size:.92rem;min-height:1.2em}
+.done{display:grid;gap:1rem}
+.done h3{font-size:1.6rem}
+.done p{color:var(--ink-soft)}
+.done pre{white-space:pre-wrap;font-family:var(--f-mono);font-size:.82rem;background:var(--calce);border:1px dashed var(--linea-chiara);border-radius:8px;padding:1rem;margin:0;max-height:220px;overflow:auto;color:var(--ink)}
+.linkbtn{background:none;border:none;font:inherit;color:var(--ink-soft);text-decoration:underline;cursor:pointer;padding:0}
+
+/* contatti */
+.contact-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:clamp(24px,4vw,64px);align-items:center}
+.contact-left{grid-column:1 / span 7;min-width:0}
+.contact-rows{margin-top:2.4rem;border-top:1px solid var(--linea-scura)}
+.crow{display:grid;grid-template-columns:130px minmax(0,1fr) auto;gap:1rem;align-items:center;padding:1.2rem 0;border-bottom:1px solid var(--linea-scura)}
+.crow .k{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--paper-soft)}
+.crow .v{font-family:var(--f-display);font-weight:700;font-stretch:110%;font-size:clamp(1.15rem,2.4vw,1.7rem);text-decoration:none;overflow-wrap:anywhere;user-select:all;-webkit-user-select:all}
+.crow .v:hover{color:var(--lampada)}
+.copy{font:500 .8rem var(--f-mono);letter-spacing:.06em;text-transform:uppercase;background:none;border:1px solid var(--linea-scura);color:var(--paper-soft);border-radius:999px;padding:.45rem .8rem;cursor:pointer;transition:all .2s}
+.copy:hover{border-color:var(--paper);color:var(--paper)}
+.copy.ok{border-color:var(--wa);color:var(--wa)}
+.contact-note{margin-top:1.2rem;color:var(--paper-soft);font-size:.92rem}
+
+/* torre contatti: dal basso verso l'alto */
+.tower{grid-column:9 / span 4;min-width:0;display:flex;justify-content:center}
+.tower-stack{position:relative;display:flex;flex-direction:column-reverse;gap:22px;padding:28px 0}
+.tower-stack::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:2px;margin-left:-1px;background:repeating-linear-gradient(var(--linea-scura) 0 8px,transparent 8px 14px)}
+.tower-stack::after{content:"";position:absolute;left:50%;bottom:-6px;width:150px;margin-left:-75px;height:2px;background:var(--paper-soft);opacity:.5}
+.tlink{position:relative;display:grid;place-items:center;width:104px;height:104px;border-radius:26px;text-decoration:none;color:#fff;box-shadow:0 18px 40px -16px rgba(0,0,0,.7);transition:transform .35s var(--ease),box-shadow .35s}
+.tlink:hover{transform:translateY(-4px) scale(1.04)}
+.tlink svg{width:48px;height:48px}
+.tlink.wa{background:var(--wa)}
+.tlink.tel{background:var(--mattone)}
+.tlink.mail{background:#e9e4dc;color:var(--ink)}
+.tlink .lvl{position:absolute;right:calc(100% + 16px);top:50%;transform:translateY(-50%);font-family:var(--f-mono);font-size:.7rem;letter-spacing:.12em;color:var(--paper-soft);white-space:nowrap}
+.tlink .nm{position:absolute;left:calc(100% + 16px);top:50%;transform:translateY(-50%);font-weight:600;white-space:nowrap}
+.js .tower.pre .tlink{opacity:0;transform:translateY(80px)}
+.tower .tlink{transition:opacity .7s var(--ease),transform .7s var(--ease),box-shadow .35s}
+.tower .tlink:nth-child(1){transition-delay:0ms}
+.tower .tlink:nth-child(2){transition-delay:180ms}
+.tower .tlink:nth-child(3){transition-delay:360ms}
+
+/* dock flottante */
+.dock{position:fixed;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:40;display:flex;flex-direction:column-reverse;gap:10px}
+.dock a{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;color:#fff;box-shadow:0 10px 24px -8px rgba(0,0,0,.6);text-decoration:none;position:relative;opacity:0;transform:translateY(60px) scale(.8);pointer-events:none;transition:opacity .5s var(--ease),transform .6s var(--ease)}
+.dock.show a{opacity:1;transform:none;pointer-events:auto}
+.dock.show a:nth-child(2){transition-delay:.12s}.dock.show a:nth-child(3){transition-delay:.24s}
+.dock:not(.show) a:nth-child(3){transition-delay:0s}
+.dock a svg{width:26px;height:26px}
+.dock .wa{background:var(--wa)}.dock .tel{background:var(--mattone)}.dock .mail{background:#e9e4dc;color:var(--ink)}
+.dock a span{position:absolute;right:62px;top:50%;transform:translateY(-50%) translateX(8px);background:var(--grafite);color:var(--paper);font-size:.82rem;font-weight:500;white-space:nowrap;padding:.35rem .65rem;border-radius:6px;opacity:0;pointer-events:none;transition:all .25s}
+.dock a:hover span,.dock a:focus-visible span{opacity:1;transform:translateY(-50%)}
+
+/* orari */
+.hours{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:clamp(24px,4vw,64px);align-items:center}
+.hours-text{grid-column:1 / span 6;min-width:0}
+.h24{font-family:var(--f-display);font-weight:900;font-stretch:125%;font-size:clamp(5rem,16vw,11rem);line-height:.85;letter-spacing:-.03em;color:var(--mattone);margin-top:.6rem}
+.hours-text .sub{font-family:var(--f-display);font-weight:700;font-stretch:110%;font-size:clamp(1.3rem,2.6vw,1.9rem);margin-top:.8rem}
+.week{margin-top:2rem;border-top:1px solid var(--linea-chiara)}
+.day{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:1rem;align-items:center;padding:.62rem 0;border-bottom:1px solid var(--linea-chiara);font-variant-numeric:tabular-nums}
+.day .t{font-family:var(--f-mono);font-size:.92rem}
+.day .s{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:#1a7f44}
+.day.today{font-weight:600}
+.day.today .s::before{content:"● ";}
+.dial-wrap{grid-column:7 / span 6;min-width:0;display:flex;justify-content:center}
+.dial{width:min(440px,100%);height:auto;aspect-ratio:1}
+.dial .ring{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 2.2s var(--ease)}
+.dial.on .ring{stroke-dashoffset:0}
+
+/* dove siamo */
+.where{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:clamp(24px,4vw,56px);align-items:stretch}
+.where-text{grid-column:1 / span 4;min-width:0;display:flex;flex-direction:column}
+.address{font-family:var(--f-display);font-weight:800;font-stretch:115%;font-size:clamp(1.7rem,3.2vw,2.5rem);line-height:1.05;margin-top:1.4rem;font-style:normal}
+.address small{display:block;font-family:var(--f-body);font-weight:500;font-stretch:100%;font-size:1.05rem;color:var(--paper-soft);margin-top:.6rem}
+.coords{font-family:var(--f-mono);font-size:.78rem;letter-spacing:.06em;color:var(--paper-soft);margin-top:1.4rem}
+.where-text .btns{margin-top:1.6rem}
+.map{grid-column:5 / span 8;min-width:0;position:relative;display:block;border-radius:12px;overflow:hidden;border:1px solid var(--linea-scura);background:#0d1117;text-decoration:none;transform-style:preserve-3d;transition:transform .6s var(--ease),border-color .3s}
+.map:hover{border-color:#4b5563}
+.map svg{width:100%;height:auto;display:block}
+.map .open{position:absolute;right:14px;bottom:14px;background:var(--paper);color:var(--ink);font-weight:600;font-size:.9rem;padding:.6rem .95rem;border-radius:999px;display:inline-flex;align-items:center;gap:.5rem;box-shadow:0 10px 30px -10px rgba(0,0,0,.6);transition:transform .3s var(--ease)}
+.map:hover .open{transform:translateY(-3px)}
+.map .open svg{width:16px;height:16px}
+.pin{animation:pinDrop 1s var(--ease) both;animation-play-state:paused;transform-box:fill-box;transform-origin:50% 100%}
+.map.on .pin{animation-play-state:running}
+@keyframes pinDrop{from{transform:translateY(-60px);opacity:0}60%{opacity:1}}
+.pulse{transform-box:fill-box;transform-origin:center;animation:ring 2.2s ease-out infinite}
+@keyframes ring{from{transform:scale(.4);opacity:.9}to{transform:scale(2.6);opacity:0}}
+.m1{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 2s var(--ease) .3s}
+.map.on .m1{stroke-dashoffset:0}
+
+/* footer */
+footer{background:#0b0d11;color:var(--paper-soft);padding-block:56px calc(40px + env(safe-area-inset-bottom,0px))}
+.foot{display:flex;flex-wrap:wrap;gap:2rem;justify-content:space-between;align-items:flex-end}
+.foot img{width:220px;height:auto}
+.foot nav{display:flex;flex-wrap:wrap;gap:.4rem 1.2rem}
+.foot nav a{text-decoration:none;font-size:.92rem}
+.foot nav a:hover{color:var(--paper)}
+.foot small{display:block;margin-top:1rem;font-family:var(--f-mono);font-size:.74rem;letter-spacing:.06em}
+
+/* ---------- responsive ---------- */
+@media (max-width:1020px){
+  .nav{display:none}
+  .menu-btn{display:inline-flex}
+}
+@media (max-width:900px){
+  .about-text,.about-media,.quote-intro,.form-card,.contact-left,.tower,.hours-text,.dial-wrap,.where-text,.map{grid-column:1 / -1}
+  .about-media{max-width:460px;margin:0 auto;padding:0 18px}
+  .quote-intro{position:static}
+  .cards{grid-template-columns:minmax(0,1fr)}
+  .tower{justify-content:center;margin-top:1rem}
+  .dial-wrap{order:-1}
+  .dial{width:min(340px,100%)}
+}
+@media (max-width:640px){
+  body{font-size:16px}
+  .brand img{height:36px}
+  .site-header .bar{height:64px}
+  .hero .shade{background:linear-gradient(0deg,rgba(10,12,16,.96) 0%,rgba(10,12,16,.82) 34%,rgba(10,12,16,0) 62%)}
+  .hero-inner{padding-block:96px calc(28px + env(safe-area-inset-bottom,0px))}
+  .hero h1{font-size:clamp(2.1rem,9.6vw,2.9rem);font-stretch:104%;line-height:.98}
+  .hero .eyebrow{display:none}
+  .hud{top:calc(env(safe-area-inset-top,0px) + 74px);font-size:.64rem;padding:.34rem .7rem}
+  .hero .btns{flex-wrap:nowrap}
+  .hero .btn{flex:0 1 auto;justify-content:center;padding:.8rem 1rem;font-size:.92rem;white-space:nowrap}
+  .hero .btn svg,.hero .lg{display:none}
+  .hero .sm{display:inline}
+  .hero .lead{margin-top:.9rem;font-size:.98rem;line-height:1.45}
+  .btns{margin-top:1.3rem;gap:.6rem}
+  .hero .btn{padding:.85rem 1.1rem;font-size:.95rem}
+  .scroll-cue{display:none}
+  .profile{grid-template-columns:minmax(0,1fr);gap:.4rem}
+  .profile dd{margin-bottom:1rem}
+  .form-grid{grid-template-columns:minmax(0,1fr)}
+  .crow{grid-template-columns:minmax(0,1fr) auto;row-gap:.2rem}
+  .crow .k{grid-column:1 / -1}
+  .tlink{width:88px;height:88px;border-radius:22px}
+  .tlink svg{width:40px;height:40px}
+  .photo3d .badge{left:-8px;max-width:210px}
+  .dock a{width:48px;height:48px;border-radius:14px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  .ribbon .track{animation:none}
+}
+</style>
+</head>
+<body>
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-header" id="top">
+  <div class="wrap bar">
+    <a class="brand" href="#home" aria-label="Costruzioni Immobiliari S.r.l. – torna all'inizio">
+      <img src="assets/logo-light.png" alt="Costruzioni Immobiliari S.r.l." width="640" height="201">
+    </a>
+    <nav class="nav" aria-label="Sezioni">
+      <a href="#chi-siamo">Chi siamo</a>
+      <a href="#servizi">Servizi</a>
+      <a href="#contatti">Contatti</a>
+      <a href="#orari">Orari</a>
+      <a href="#dove">Dove siamo</a>
+      <a href="#preventivo" class="cta">Richiedi un preventivo</a>
+    </nav>
+    <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="mobileNav"><i></i>Menu</button>
+  </div>
+</header>
+
+<nav class="mobile-nav" id="mobileNav" aria-label="Menu">
+  <a href="#home" style="transition-delay:.05s"><span>HOME</span>Home</a>
+  <a href="#chi-siamo" style="transition-delay:.1s"><span>CHI</span>Chi siamo</a>
+  <a href="#servizi" style="transition-delay:.15s"><span>COSA</span>Servizi</a>
+  <a href="#preventivo" style="transition-delay:.2s"><span>€</span>Preventivo</a>
+  <a href="#contatti" style="transition-delay:.25s"><span>TEL</span>Contatti</a>
+  <a href="#orari" style="transition-delay:.3s"><span>H24</span>Orari</a>
+  <a href="#dove" style="transition-delay:.35s"><span>MAP</span>Dove siamo</a>
+</nav>
+
+<main>
+<!-- ================= HOME ================= -->
+<section class="hero" id="home" aria-label="Home">
+  <img class="poster" id="heroPoster" src="assets/poster-landscape.jpg" alt="" aria-hidden="true">
+  <video id="heroVideo" muted playsinline autoplay loop preload="auto" aria-hidden="true"></video>
+  <div class="shade"></div>
+  <div class="hud" id="hud" aria-hidden="true"><b></b><span id="hudText">Tracciamento · quota ±0,00 m</span></div>
+  <div class="wrap hero-inner">
+    <div class="hero-copy" id="heroCopy">
+      <p class="eyebrow">Impresa edile · Milano</p>
+      <h1 class="split" data-split>Costruiamo Milano, un piano <em>alla volta.</em></h1>
+      <p class="lead rv" style="--rd:500ms">Nuove costruzioni, ristrutturazioni e impianti per edifici residenziali e non residenziali, a Milano e provincia.</p>
+      <div class="btns rv" style="--rd:650ms">
+        <a class="btn btn-red" href="#preventivo">Richiedi un preventivo
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <a class="btn btn-ghost" href="#servizi"><span class="lg">I nostri servizi</span><span class="sm">Servizi</span></a>
+      </div>
+    </div>
+  </div>
+  <a class="scroll-cue" href="#chi-siamo">SCORRI</a>
+</section>
+
+<div class="ribbon" aria-hidden="true">
+  <div class="track">
+    <span>Nuove costruzioni</span><span>Ristrutturazioni</span><span>Rifacimento bagni</span><span>Impermeabilizzazioni</span><span>Impianti</span><span>Milano e provincia</span>
+    <span>Nuove costruzioni</span><span>Ristrutturazioni</span><span>Rifacimento bagni</span><span>Impermeabilizzazioni</span><span>Impianti</span><span>Milano e provincia</span>
+  </div>
+</div>
+
+<!-- ================= CHI SIAMO ================= -->
+<section class="light band" id="chi-siamo">
+  <span class="sheet-label">Profilo e attività</span>
+  <div class="wrap about">
+    <div class="about-text">
+      <p class="eyebrow">Chi siamo</p>
+      <h2 class="split" data-split>Un’impresa edile che costruisce e rinnova.</h2>
+      <p class="statement rv"><strong>Costruzioni Immobiliari S.r.l.</strong> è un’impresa edile di Milano attiva nel settore della <mark>costruzione e ristrutturazione di edifici residenziali e non residenziali</mark>.</p>
+      <dl class="profile rv">
+        <dt>Ambito operativo</dt>
+        <dd>Costruzioni, ristrutturazioni edili e interventi impiantistici (elettrici, idrico-sanitari, riscaldamento, climatizzazione, antincendio e gas) a Milano e provincia, oltre a compravendita, gestione e locazione immobiliare previste dall’oggetto sociale.
+          <div class="tags">
+            <span class="tag red">Costruzioni</span><span class="tag red">Ristrutturazioni edili</span>
+            <span class="tag">Elettrici</span><span class="tag">Idrico-sanitari</span><span class="tag">Riscaldamento</span><span class="tag">Climatizzazione</span><span class="tag">Antincendio</span><span class="tag">Gas</span>
+            <span class="tag">Compravendita</span><span class="tag">Gestione</span><span class="tag">Locazione immobiliare</span>
+          </div>
+        </dd>
+        <dt>Dove operiamo</dt>
+        <dd>Milano e provincia.</dd>
+      </dl>
+      <div class="logo-card rv">
+        <img src="assets/logo.png" alt="Logo Costruzioni Immobiliari S.r.l." width="640" height="201" loading="lazy">
+      </div>
+    </div>
+    <div class="about-media rv">
+      <div class="photo3d" id="aboutPhoto">
+        <div class="frame" aria-hidden="true"></div>
+        <img src="assets/cantiere.jpg" alt="Operaio al lavoro su una parete in laterizio in un cantiere" loading="lazy" width="1179" height="725">
+        <div class="badge"><span class="mono">Cantieri</span><strong>Residenziali e non residenziali</strong></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SERVIZI ================= -->
+<section class="dark band" id="servizi">
+  <span class="sheet-label">Servizi principali</span>
+  <div class="wrap">
+    <div class="services-head">
+      <div>
+        <p class="eyebrow">I nostri servizi</p>
+        <h2 class="split" data-split>Dalle fondamenta agli impianti.</h2>
+      </div>
+      <p class="rv">Un solo interlocutore per le opere edili e per tutti gli impianti della casa o dell’edificio.</p>
+    </div>
+    <div class="cards">
+      <article class="card rv tilt">
+        <div class="glare"></div>
+        <div class="media"><img src="assets/bagno.jpg" alt="Bagno ristrutturato con vasca freestanding e rivestimenti in gres" loading="lazy" width="1179" height="727"></div>
+        <div class="body">
+          <span class="kicker">Opere edili</span>
+          <h3>Edilizia e ristrutturazioni</h3>
+          <p class="desc">Nuove costruzioni, opere murarie, ristrutturazioni edili e rifacimento bagni, oltre a lavori di impermeabilizzazione.</p>
+          <ul>
+            <li>Nuove costruzioni</li>
+            <li>Opere murarie</li>
+            <li>Ristrutturazioni edili</li>
+            <li>Rifacimento bagni</li>
+            <li>Impermeabilizzazione</li>
+          </ul>
+        </div>
+      </article>
+      <article class="card rv tilt" style="--rd:120ms">
+        <div class="glare"></div>
+        <div class="media"><img src="assets/climatizzazione.jpg" alt="Soggiorno con climatizzatore installato su parete in pietra" loading="lazy" width="1179" height="1542" style="object-position:50% 22%"></div>
+        <div class="body">
+          <span class="kicker">Impianti</span>
+          <h3>Impiantistica</h3>
+          <p class="desc">Installazione e gestione di impianti elettrici, idrico-sanitari, gas, riscaldamento e climatizzazione, e protezione antincendio.</p>
+          <ul>
+            <li>Impianti elettrici</li>
+            <li>Impianti idrico-sanitari</li>
+            <li>Impianti gas</li>
+            <li>Riscaldamento e climatizzazione</li>
+            <li>Protezione antincendio</li>
+          </ul>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PREVENTIVO ================= -->
+<section class="light band" id="preventivo">
+  <span class="sheet-label">Richiesta</span>
+  <div class="wrap quote-grid">
+    <div class="quote-intro">
+      <p class="eyebrow">Richiedi un preventivo</p>
+      <h2 class="split" data-split>Raccontaci il tuo progetto.</h2>
+      <p class="lead rv">Compila il modulo: la richiesta arriva già pronta su WhatsApp o via email, così possiamo risponderti con tutti i dettagli.</p>
+      <ol class="steps rv">
+        <li><b>1</b><span>Descrivi l’intervento e l’immobile.</span></li>
+        <li><b>2</b><span>Invia la richiesta su WhatsApp o per email.</span></li>
+        <li><b>3</b><span>Ti ricontattiamo per il sopralluogo e il preventivo.</span></li>
+      </ol>
+      <figure class="quote-photo rv">
+        <img src="assets/interno.jpg" alt="Appartamento ristrutturato con parquet e cucina a vista" loading="lazy" id="parallaxImg" width="1179" height="733">
+        <figcaption>Appartamento ristrutturato</figcaption>
+      </figure>
+    </div>
+
+    <div class="form-card rv">
+      <form id="quoteForm" novalidate>
+        <div class="form-grid">
+          <div class="field">
+            <label for="q-nome">Nome e cognome *</label>
+            <input id="q-nome" name="nome" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="q-tel">Telefono *</label>
+            <input id="q-tel" name="telefono" type="tel" autocomplete="tel" inputmode="tel" required>
+          </div>
+          <div class="field">
+            <label for="q-email">Email</label>
+            <input id="q-email" name="email" type="email" autocomplete="email">
+          </div>
+          <div class="field">
+            <label for="q-tipo">Tipo di immobile</label>
+            <select id="q-tipo" name="immobile">
+              <option>Appartamento</option>
+              <option>Casa indipendente / villa</option>
+              <option>Edificio / condominio</option>
+              <option>Negozio / ufficio</option>
+              <option>Capannone / altro non residenziale</option>
+              <option>Terreno (nuova costruzione)</option>
+            </select>
+          </div>
+          <fieldset class="field full" style="border:0;padding:0;margin:0">
+            <legend style="font-family:var(--f-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:.5rem;padding:0">Interventi richiesti *</legend>
+            <div class="chips" id="chips">
+              <input type="checkbox" id="c1" value="Nuova costruzione"><label for="c1">Nuova costruzione</label>
+              <input type="checkbox" id="c2" value="Ristrutturazione edile"><label for="c2">Ristrutturazione</label>
+              <input type="checkbox" id="c3" value="Opere murarie"><label for="c3">Opere murarie</label>
+              <input type="checkbox" id="c4" value="Rifacimento bagno"><label for="c4">Rifacimento bagno</label>
+              <input type="checkbox" id="c5" value="Impermeabilizzazione"><label for="c5">Impermeabilizzazione</label>
+              <input type="checkbox" id="c6" value="Impianto elettrico"><label for="c6">Impianto elettrico</label>
+              <input type="checkbox" id="c7" value="Impianto idrico-sanitario"><label for="c7">Idrico-sanitario</label>
+              <input type="checkbox" id="c8" value="Impianto gas"><label for="c8">Gas</label>
+              <input type="checkbox" id="c9" value="Riscaldamento e climatizzazione"><label for="c9">Riscaldamento e clima</label>
+              <input type="checkbox" id="c10" value="Protezione antincendio"><label for="c10">Antincendio</label>
+            </div>
+          </fieldset>
+          <div class="field">
+            <label for="q-zona">Indirizzo o zona</label>
+            <input id="q-zona" name="zona" placeholder="es. Milano, zona Città Studi">
+          </div>
+          <div class="field">
+            <label for="q-mq">Superficie (m²)</label>
+            <input id="q-mq" name="mq" inputmode="numeric" placeholder="es. 85">
+          </div>
+          <div class="field full">
+            <label for="q-msg">Descrizione dei lavori</label>
+            <textarea id="q-msg" name="messaggio" placeholder="Cosa vorresti realizzare? Tempi previsti, stato attuale, eventuali esigenze particolari…"></textarea>
+          </div>
+          <label class="consent full" for="q-privacy" style="grid-column:1/-1">
+            <input type="checkbox" id="q-privacy" required>
+            <span>Acconsento al trattamento dei miei dati per essere ricontattato in merito a questa richiesta. *</span>
+          </label>
+        </div>
+        <p class="form-error" id="formError" role="alert"></p>
+        <div class="form-actions">
+          <button class="btn btn-wa" type="submit" data-via="wa">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.2-.2-.5-.3z"/></svg>
+            Invia su WhatsApp</button>
+          <button class="btn btn-dark" type="submit" data-via="mail">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+            Invia per email</button>
+        </div>
+      </form>
+      <div class="done" id="done" hidden>
+        <p class="eyebrow" style="color:var(--ink-soft);margin:0">Richiesta pronta</p>
+        <h3>La tua richiesta è pronta da inviare.</h3>
+        <p id="doneText">Se la finestra non si è aperta, usa il pulsante qui sotto oppure copia il testo.</p>
+        <div class="btns" style="margin-top:.2rem">
+          <a class="btn btn-wa" id="doneLink" href="https://wa.me/393454814428" target="_blank" rel="noopener">Apri WhatsApp</a>
+          <button class="btn btn-ghost" type="button" id="copyQuote" style="color:var(--ink);border-color:var(--linea-chiara)">Copia testo</button>
+        </div>
+        <pre id="quoteText"></pre>
+        <button class="linkbtn" type="button" id="editQuote">Modifica la richiesta</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONTATTI ================= -->
+<section class="dark band" id="contatti">
+  <span class="sheet-label">Contatti diretti</span>
+  <div class="wrap contact-grid">
+    <div class="contact-left">
+      <p class="eyebrow">Contatti</p>
+      <h2 class="split" data-split>Parliamo del tuo cantiere.</h2>
+      <div class="contact-rows rv">
+        <div class="crow">
+          <span class="k">WhatsApp</span>
+          <a class="v" href="https://wa.me/393454814428" target="_blank" rel="noopener">345 481 4428</a>
+          <button class="copy" data-copy="+39 345 481 4428">Copia</button>
+        </div>
+        <div class="crow">
+          <span class="k">Telefono</span>
+          <a class="v" href="tel:+393454814428">345 481 4428</a>
+          <button class="copy" data-copy="+39 345 481 4428">Copia</button>
+        </div>
+        <div class="crow">
+          <span class="k">Email</span>
+          <a class="v" href="mailto:contatti@costruimmob.it">contatti@costruimmob.it</a>
+          <button class="copy" data-copy="contatti@costruimmob.it">Copia</button>
+        </div>
+      </div>
+      <p class="contact-note">Rispondiamo a qualsiasi ora: siamo raggiungibili H24, sette giorni su sette.</p>
+    </div>
+    <div class="tower pre" id="tower" aria-label="Collegamenti diretti">
+      <div class="tower-stack">
+        <a class="tlink wa" href="https://wa.me/393454814428" target="_blank" rel="noopener" aria-label="Scrivici su WhatsApp al 345 481 4428">
+          <span class="lvl">P.T.</span>
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.2-.2-.5-.3z"/></svg>
+          <span class="nm">WhatsApp</span>
+        </a>
+        <a class="tlink tel" href="tel:+393454814428" aria-label="Chiamaci al 345 481 4428">
+          <span class="lvl">P.1</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>
+          <span class="nm">Telefono</span>
+        </a>
+        <a class="tlink mail" href="mailto:contatti@costruimmob.it" aria-label="Scrivici a contatti@costruimmob.it">
+          <span class="lvl">P.2</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+          <span class="nm">Email</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ORARI ================= -->
+<section class="light band" id="orari">
+  <span class="sheet-label">Orari</span>
+  <div class="wrap hours">
+    <div class="hours-text">
+      <p class="eyebrow">Orari</p>
+      <h2 class="split" data-split>Sempre aperti.</h2>
+      <div class="h24 rv" aria-label="H24">H24</div>
+      <p class="sub rv">24 ore su 24, 7 giorni su 7.</p>
+      <div class="week rv" id="week"></div>
+    </div>
+    <div class="dial-wrap rv">
+      <svg class="dial" id="dial" viewBox="0 0 400 400" role="img" aria-label="Quadrante 24 ore: aperto in ogni fascia oraria">
+        <circle cx="200" cy="200" r="182" fill="#fbfaf7" stroke="#d3ccc1"/>
+        <circle cx="200" cy="200" r="150" fill="none" stroke="#e7e1d8" stroke-width="22"/>
+        <circle class="ring" cx="200" cy="200" r="150" fill="none" stroke="#c4271f" stroke-width="22" pathLength="1" transform="rotate(-90 200 200)"/>
+        <g id="ticks"></g>
+        <g id="hand">
+          <line x1="200" y1="200" x2="200" y2="70" stroke="#16191e" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="200" cy="200" r="9" fill="#16191e"/>
+        </g>
+        <text x="200" y="250" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" letter-spacing="2" fill="#585b60">ORA A MILANO</text>
+        <text id="clockText" x="200" y="282" text-anchor="middle" font-family="Archivo, sans-serif" font-weight="800" font-size="30" fill="#16191e" style="font-variant-numeric:tabular-nums">--:--</text>
+        <text x="200" y="152" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" letter-spacing="2" fill="#1a7f44">● APERTO ORA</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DOVE SIAMO ================= -->
+<section class="dark band" id="dove">
+  <span class="sheet-label">Dove ci troviamo</span>
+  <div class="wrap where">
+    <div class="where-text">
+      <p class="eyebrow">Dove ci troviamo</p>
+      <h2 class="split" data-split>In Corso Buenos Aires.</h2>
+      <address class="address rv">Corso Buenos Aires, 49<small>20124 Milano MI</small></address>
+      <p class="coords rv">45,479° N · 9,210° E</p>
+      <div class="btns rv">
+        <a class="btn btn-red" href="https://www.google.com/maps/search/?api=1&amp;query=Corso%20Buenos%20Aires%2049%2C%2020124%20Milano%20MI" target="_blank" rel="noopener">Apri in Google Maps</a>
+        <a class="btn btn-ghost" href="https://www.google.com/maps/dir/?api=1&amp;destination=Corso%20Buenos%20Aires%2049%2C%2020124%20Milano%20MI" target="_blank" rel="noopener">Indicazioni</a>
+      </div>
+    </div>
+    <a class="map rv" id="map" href="https://www.google.com/maps/search/?api=1&amp;query=Corso%20Buenos%20Aires%2049%2C%2020124%20Milano%20MI" target="_blank" rel="noopener" aria-label="Mappa: Corso Buenos Aires 49, Milano. Apri in Google Maps">
+      <svg viewBox="0 0 800 540" aria-hidden="true">
+        <defs>
+          <pattern id="blocks" width="34" height="34" patternUnits="userSpaceOnUse" patternTransform="rotate(-34)">
+            <rect width="34" height="34" fill="#0d1117"/>
+            <rect x="3" y="3" width="28" height="28" rx="2" fill="#161c25"/>
+          </pattern>
+          <pattern id="blocks2" width="40" height="30" patternUnits="userSpaceOnUse" patternTransform="rotate(8)">
+            <rect width="40" height="30" fill="#0d1117"/>
+            <rect x="3" y="3" width="34" height="24" rx="2" fill="#151a22"/>
+          </pattern>
+          <radialGradient id="mapGlow" cx="52%" cy="57%" r="40%"><stop offset="0" stop-color="#c4271f" stop-opacity=".18"/><stop offset="1" stop-color="#c4271f" stop-opacity="0"/></radialGradient>
+        </defs>
+        <rect width="800" height="540" fill="url(#blocks)"/>
+        <path d="M0 0H330L260 260 0 330Z" fill="url(#blocks2)" opacity=".9"/>
+        <rect width="800" height="540" fill="url(#mapGlow)"/>
+        <!-- giardini -->
+        <path d="M150 455 C190 430 250 445 290 470 L270 540 H120 C110 510 120 475 150 455Z" fill="#17301f" stroke="#24452e"/>
+        <text x="190" y="505" font-family="IBM Plex Mono, monospace" font-size="12" fill="#6fa883" letter-spacing="1">GIARDINI MONTANELLI</text>
+        <!-- stazione centrale -->
+        <rect x="170" y="96" width="120" height="64" rx="3" fill="#1d2430" stroke="#2e3846" transform="rotate(-8 230 128)"/>
+        <text x="230" y="186" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="#8d97a5" letter-spacing="1">STAZIONE CENTRALE</text>
+        <!-- strade secondarie -->
+        <g stroke="#232b37" stroke-width="7" fill="none" stroke-linecap="round">
+          <path d="M240 150 L435 278"/>
+          <path d="M300 470 L120 400"/>
+          <path d="M300 470 L470 520"/>
+          <path d="M570 85 L640 0"/><path d="M570 85 L780 60"/><path d="M570 85 L760 230"/><path d="M570 85 L520 0"/><path d="M570 85 L380 40"/>
+          <path d="M360 380 L520 430"/><path d="M330 330 L180 300"/><path d="M470 230 L640 300"/><path d="M400 260 L300 240"/><path d="M510 170 L660 190"/><path d="M490 190 L390 150"/>
+        </g>
+        <text x="300" y="196" font-family="IBM Plex Mono, monospace" font-size="11" fill="#6b7482" letter-spacing="1" transform="rotate(33 300 196)">VIA VITRUVIO</text>
+        <!-- corso buenos aires -->
+        <path d="M300 470 L570 85" stroke="#3a4352" stroke-width="20" stroke-linecap="round"/>
+        <path d="M300 470 L570 85" stroke="#e9e4dc" stroke-width="12" stroke-linecap="round"/>
+        <text font-family="Archivo, sans-serif" font-weight="800" font-size="15" letter-spacing="3" fill="#0d1117" transform="translate(482 222) rotate(-54.9)" text-anchor="middle">CORSO BUENOS AIRES</text>
+        <!-- linea M1 -->
+        <path class="m1" pathLength="1" d="M300 470 L570 85" stroke="#c4271f" stroke-width="3" stroke-dasharray="1" fill="none" transform="translate(-14 -10)"/>
+        <g font-family="IBM Plex Mono, monospace" font-size="12" fill="#e9e4dc" letter-spacing="1">
+          <circle cx="286" cy="460" r="9" fill="#c4271f" stroke="#fff" stroke-width="2"/><text x="270" y="438" text-anchor="end">M1 PORTA VENEZIA</text>
+          <circle cx="421" cy="268" r="9" fill="#c4271f" stroke="#fff" stroke-width="2"/><text x="404" y="262" text-anchor="end">M1 LIMA</text>
+          <circle cx="556" cy="75" r="9" fill="#c4271f" stroke="#fff" stroke-width="2"/>
+        </g>
+        <!-- piazzale loreto -->
+        <circle cx="570" cy="85" r="34" fill="#0d1117" stroke="#3a4352" stroke-width="10"/>
+        <circle cx="570" cy="85" r="34" fill="none" stroke="#e9e4dc" stroke-width="4"/>
+        <text x="620" y="128" font-family="IBM Plex Mono, monospace" font-size="12" fill="#e9e4dc" letter-spacing="1">P.LE LORETO · M1 M2</text>
+        <text x="312" y="500" font-family="IBM Plex Mono, monospace" font-size="12" fill="#e9e4dc" letter-spacing="1">PORTA VENEZIA</text>
+        <!-- pin -->
+        <g transform="translate(400 316)">
+          <circle class="pulse" r="18" fill="none" stroke="#c4271f" stroke-width="3"/>
+          <g class="pin">
+            <path d="M0 0 C-4 -14 -22 -26 -22 -44 a22 22 0 0 1 44 0 C22 -26 4 -14 0 0Z" fill="#c4271f" stroke="#fff" stroke-width="3"/>
+            <circle cy="-44" r="8" fill="#fff"/>
+          </g>
+          <g transform="translate(34 -62)">
+            <rect width="214" height="54" rx="8" fill="#f4f1eb"/>
+            <text x="14" y="23" font-family="Archivo, sans-serif" font-weight="800" font-size="15" fill="#16191e">Costruzioni Immobiliari</text>
+            <text x="14" y="42" font-family="IBM Plex Mono, monospace" font-size="12" fill="#585b60">C.so Buenos Aires, 49</text>
+          </g>
+        </g>
+        <!-- nord + scala -->
+        <g transform="translate(748 486)" font-family="IBM Plex Mono, monospace" font-size="11" fill="#8d97a5">
+          <circle r="18" fill="none" stroke="#3a4352"/><path d="M0 -13 L6 7 L0 3 L-6 7Z" fill="#e9e4dc"/><text y="-24" text-anchor="middle">N</text>
+        </g>
+        <g transform="translate(24 516)" font-family="IBM Plex Mono, monospace" font-size="11" fill="#8d97a5">
+          <path d="M0 0 H90 M0 -5 V5 M90 -5 V5" stroke="#8d97a5"/><text x="100" y="4">≈ 300 m · mappa schematica</text>
+        </g>
+      </svg>
+      <span class="open">Apri in Google Maps
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
+    </a>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <div>
+      <img src="assets/logo-light.png" alt="Costruzioni Immobiliari S.r.l." width="640" height="201" loading="lazy">
+      <small>© 2026 Costruzioni Immobiliari S.r.l. · Impresa edile · Milano</small>
+    </div>
+    <nav aria-label="Collegamenti a piè di pagina">
+      <a href="#chi-siamo">Chi siamo</a><a href="#servizi">Servizi</a><a href="#preventivo">Preventivo</a><a href="#contatti">Contatti</a><a href="#orari">Orari</a><a href="#dove">Dove siamo</a>
+    </nav>
+  </div>
+</footer>
+
+<!-- dock contatti: dal basso verso l'alto -->
+<div class="dock" aria-label="Contatti rapidi">
+  <a class="wa" href="https://wa.me/393454814428" target="_blank" rel="noopener" aria-label="WhatsApp 345 481 4428"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.2-.2-.5-.3z"/></svg><span>WhatsApp · 345 481 4428</span></a>
+  <a class="tel" href="tel:+393454814428" aria-label="Telefono 345 481 4428"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg><span>Telefono · 345 481 4428</span></a>
+  <a class="mail" href="mailto:contatti@costruimmob.it" aria-label="Email contatti@costruimmob.it"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg><span>contatti@costruimmob.it</span></a>
+</div>
+
+<script>
+(function(){
+  var doc=document.documentElement;
+  doc.classList.add('js');
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var PHONE='393454814428', EMAIL='contatti@costruimmob.it';
+
+  /* ---------- video hero: verticale su telefono, orizzontale altrove ---------- */
+  var v=document.getElementById('heroVideo'), poster=document.getElementById('heroPoster'), cur='';
+  function pickVideo(){
+    var portrait=window.innerHeight>window.innerWidth*1.05;
+    var mode=portrait?'portrait':'landscape';
+    if(mode===cur) return; cur=mode;
+    poster.src='assets/poster-'+mode+'.jpg';
+    if(reduce){v.hidden=true;return;}
+    v.src='assets/palazzo-'+mode+'.mp4';
+    v.muted=true; v.defaultMuted=true;
+    var pr=v.play(); if(pr&&pr.catch) pr.catch(function(){});
+  }
+  pickVideo();
+  window.addEventListener('resize',function(){clearTimeout(pickVideo.t);pickVideo.t=setTimeout(pickVideo,250);});
+  v.addEventListener('playing',function(){poster.style.opacity='0';poster.style.transition='opacity .6s';});
+
+  /* HUD sincronizzato con l'animazione Remotion (30 fps, 450 fotogrammi) */
+  var hud=document.getElementById('hudText'), lastHud='';
+  function fmt(n){return n.toFixed(2).replace('.',',');}
+  function hudTick(){
+    if(!v.paused && v.readyState>1){
+      var fr=Math.floor(v.currentTime*30), t;
+      if(fr<30) t='Tracciamento · quota ±0,00 m';
+      else if(fr<176){var lv=Math.min(8,Math.floor((fr-30)/18)+1);t='Livello '+String(lv).padStart(2,'0')+'/08 · quota +'+fmt(lv*3.2)+' m';}
+      else if(fr<235) t='Edificio completato · +25,60 m';
+      else if(fr<300) t='Piano 5° · zoom sull’appartamento';
+      else if(fr<420) t='Pianta piano 5° · 140 m²';
+      else t='Nuovo progetto…';
+      if(t!==lastHud){hud.textContent=t;lastHud=t;}
+    }
+    requestAnimationFrame(hudTick);
+  }
+  if(!reduce) requestAnimationFrame(hudTick); else hud.textContent='Pianta piano 5° · 140 m²';
+
+  /* ---------- header, progress, parallax ---------- */
+  var dock=document.querySelector('.dock'), header=document.getElementById('top'), prog=document.getElementById('progress');
+  var heroCopy=document.getElementById('heroCopy'), aboutPhoto=document.getElementById('aboutPhoto'), pimg=document.getElementById('parallaxImg');
+  function onScroll(){
+    var y=window.scrollY, h=document.documentElement.scrollHeight-window.innerHeight;
+    header.classList.toggle('solid',y>40);
+    dock.classList.toggle('show',y>window.innerHeight*0.6);
+    prog.style.transform='scaleX('+(h>0?y/h:0)+')';
+    if(reduce) return;
+    var vh=window.innerHeight;
+    if(y<vh){heroCopy.style.transform='translateY('+(y*0.25)+'px)';heroCopy.style.opacity=String(1-y/(vh*0.9));}
+    var r=aboutPhoto.getBoundingClientRect();
+    if(r.bottom>0&&r.top<vh){var k=(r.top+r.height/2-vh/2)/vh;aboutPhoto.style.transform='rotateY('+(-k*16)+'deg) rotateX('+(k*6)+'deg)';}
+    var q=pimg.getBoundingClientRect();
+    if(q.bottom>0&&q.top<vh){var k2=(q.top+q.height/2-vh/2)/vh;pimg.style.transform='translateY('+(-8+k2*-10)+'%)';}
+  }
+  window.addEventListener('scroll',onScroll,{passive:true}); onScroll();
+
+  /* ---------- menu mobile ---------- */
+  var mb=document.getElementById('menuBtn'), mn=document.getElementById('mobileNav');
+  function setMenu(o){mb.setAttribute('aria-expanded',String(o));mn.classList.toggle('open',o);document.body.style.overflow=o?'hidden':'';}
+  mb.addEventListener('click',function(){setMenu(mb.getAttribute('aria-expanded')!=='true');});
+  mn.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){setMenu(false);});});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')setMenu(false);});
+
+  /* ---------- testo a parole con rotazione 3D ---------- */
+  document.querySelectorAll('[data-split]').forEach(function(el){
+    var i=0;
+    (function walk(node){
+      Array.prototype.slice.call(node.childNodes).forEach(function(n){
+        if(n.nodeType===3){
+          var frag=document.createDocumentFragment();
+          n.textContent.split(/(\s+)/).forEach(function(part){
+            if(!part) return;
+            if(/^\s+$/.test(part)){frag.appendChild(document.createTextNode(' '));return;}
+            var w=document.createElement('span');w.className='w';
+            var s=document.createElement('span');s.textContent=part;s.style.setProperty('--i',i++);
+            w.appendChild(s);frag.appendChild(w);
+          });
+          node.replaceChild(frag,n);
+        } else if(n.nodeType===1) walk(n);
+      });
+    })(el);
+  });
+
+  /* ---------- comparsa allo scroll (solo per ciò che è sotto la piega) ---------- */
+  var targets=document.querySelectorAll('.rv,[data-split],#tower,#dial,#map');
+  if('IntersectionObserver' in window && !reduce){
+    var vh0=window.innerHeight;
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(!e.isIntersecting) return;
+        var el=e.target;
+        el.classList.remove('pre'); el.classList.add('go','on');
+        io.unobserve(el);
+      });
+    },{rootMargin:'0px 0px -8% 0px',threshold:0.08});
+    targets.forEach(function(el){
+      var r=el.getBoundingClientRect();
+      if(r.top<vh0 && r.bottom>0){el.classList.remove('pre');el.classList.add('go','on');}
+      else{ if(el.classList.contains('rv')||el.hasAttribute('data-split')) el.classList.add('pre'); io.observe(el);}
+    });
+  } else targets.forEach(function(el){el.classList.remove('pre');el.classList.add('on');});
+
+  /* ---------- tilt 3D sulle card ---------- */
+  if(!reduce && window.matchMedia('(hover:hover) and (pointer:fine)').matches){
+    document.querySelectorAll('.tilt').forEach(function(c){
+      c.addEventListener('pointermove',function(e){
+        var r=c.getBoundingClientRect(), x=(e.clientX-r.left)/r.width, y=(e.clientY-r.top)/r.height;
+        c.style.transition='transform .12s linear, border-color .3s';
+        c.style.transform='rotateY('+((x-.5)*10)+'deg) rotateX('+((.5-y)*8)+'deg) translateZ(0)';
+        c.style.setProperty('--gx',(x*100)+'%');c.style.setProperty('--gy',(y*100)+'%');
+      });
+      c.addEventListener('pointerleave',function(){c.style.transition='';c.style.transform='';});
+    });
+    var map=document.getElementById('map');
+    map.addEventListener('pointermove',function(e){
+      var r=map.getBoundingClientRect(), x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5;
+      map.style.transition='transform .15s linear, border-color .3s';
+      map.style.transform='perspective(1400px) rotateY('+(x*6)+'deg) rotateX('+(-y*5)+'deg)';
+    });
+    map.addEventListener('pointerleave',function(){map.style.transition='';map.style.transform='';});
+  }
+
+  /* ---------- copia ---------- */
+  function copyText(text,btn,el){
+    function ok(){if(!btn)return;var o=btn.textContent;btn.textContent='Copiato';btn.classList.add('ok');setTimeout(function(){btn.textContent=o;btn.classList.remove('ok');},1600);}
+    function fallback(){ if(el){var r=document.createRange();r.selectNodeContents(el);var s=getSelection();s.removeAllRanges();s.addRange(r);} if(btn){btn.textContent='Seleziona e copia';} }
+    try{ navigator.clipboard.writeText(text).then(ok,fallback);}catch(e){fallback();}
+  }
+  document.querySelectorAll('.copy').forEach(function(b){
+    b.addEventListener('click',function(){copyText(b.getAttribute('data-copy'),b,b.parentNode.querySelector('.v'));});
+  });
+
+  /* ---------- orari: settimana + orologio ---------- */
+  var days=['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
+  var week=document.getElementById('week');
+  function milanNow(){
+    try{
+      var p=new Intl.DateTimeFormat('it-IT',{timeZone:'Europe/Rome',hour:'2-digit',minute:'2-digit',second:'2-digit',weekday:'long',hour12:false}).formatToParts(new Date());
+      var o={};p.forEach(function(x){o[x.type]=x.value;});
+      return {h:+o.hour%24,m:+o.minute,s:+o.second,wd:o.weekday};
+    }catch(e){var d=new Date();return {h:d.getHours(),m:d.getMinutes(),s:d.getSeconds(),wd:days[(d.getDay()+6)%7].toLowerCase()};}
+  }
+  var now=milanNow();
+  days.forEach(function(d){
+    var row=document.createElement('div');row.className='day'+(d.toLowerCase()===now.wd?' today':'');
+    row.innerHTML='<span>'+d+'</span><span class="t">00:00 – 24:00</span><span class="s">Aperto</span>';
+    week.appendChild(row);
+  });
+  var ticks=document.getElementById('ticks'), NS='http://www.w3.org/2000/svg';
+  for(var i=0;i<24;i++){
+    var a=i/24*Math.PI*2-Math.PI/2, r1=i%6===0?118:124, r2=132;
+    var l=document.createElementNS(NS,'line');
+    l.setAttribute('x1',200+Math.cos(a)*r1);l.setAttribute('y1',200+Math.sin(a)*r1);
+    l.setAttribute('x2',200+Math.cos(a)*r2);l.setAttribute('y2',200+Math.sin(a)*r2);
+    l.setAttribute('stroke','#16191e');l.setAttribute('stroke-width',i%6===0?3:1.4);ticks.appendChild(l);
+    if(i%6===0){var t=document.createElementNS(NS,'text');t.setAttribute('x',200+Math.cos(a)*100);t.setAttribute('y',200+Math.sin(a)*100+5);
+      t.setAttribute('text-anchor','middle');t.setAttribute('font-family','IBM Plex Mono, monospace');t.setAttribute('font-size','14');t.setAttribute('fill','#585b60');
+      t.textContent=String(i).padStart(2,'0');ticks.appendChild(t);}
+  }
+  var hand=document.getElementById('hand'), ct=document.getElementById('clockText');
+  function clock(){
+    var n=milanNow(), deg=(n.h+n.m/60+n.s/3600)/24*360;
+    hand.setAttribute('transform','rotate('+deg+' 200 200)');
+    ct.textContent=String(n.h).padStart(2,'0')+':'+String(n.m).padStart(2,'0');
+  }
+  clock(); setInterval(clock,1000);
+
+  /* ---------- preventivo ---------- */
+  var form=document.getElementById('quoteForm'), err=document.getElementById('formError'), done=document.getElementById('done');
+  var via='wa';
+  form.querySelectorAll('button[type=submit]').forEach(function(b){b.addEventListener('click',function(){via=b.getAttribute('data-via');});});
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var nome=form.nome.value.trim(), tel=form.telefono.value.trim(), email=form.email.value.trim();
+    var interventi=[].slice.call(form.querySelectorAll('#chips input:checked')).map(function(c){return c.value;});
+    var priv=document.getElementById('q-privacy').checked;
+    form.nome.setAttribute('aria-invalid',String(!nome));
+    form.telefono.setAttribute('aria-invalid',String(!tel));
+    var missing=[];
+    if(!nome) missing.push('nome e cognome');
+    if(!tel) missing.push('telefono');
+    if(!interventi.length) missing.push('almeno un intervento');
+    if(!priv) missing.push('il consenso al trattamento dei dati');
+    if(missing.length){err.textContent='Per inviare la richiesta indica '+missing.join(', ')+'.';return;}
+    err.textContent='';
+    var lines=['RICHIESTA DI PREVENTIVO','','Nome: '+nome,'Telefono: '+tel];
+    if(email) lines.push('Email: '+email);
+    lines.push('Immobile: '+form.immobile.value,'Interventi: '+interventi.join(', '));
+    if(form.zona.value.trim()) lines.push('Zona: '+form.zona.value.trim());
+    if(form.mq.value.trim()) lines.push('Superficie: '+form.mq.value.trim()+' m²');
+    if(form.messaggio.value.trim()) lines.push('','Descrizione:',form.messaggio.value.trim());
+    var text=lines.join('\n');
+    var href= via==='wa' ? 'https://wa.me/'+PHONE+'?text='+encodeURIComponent(text)
+                         : 'mailto:'+EMAIL+'?subject='+encodeURIComponent('Richiesta preventivo – '+nome)+'&body='+encodeURIComponent(text);
+    var link=document.getElementById('doneLink');
+    link.href=href; link.textContent= via==='wa'?'Apri WhatsApp con la richiesta':'Apri l’email con la richiesta';
+    link.className='btn '+(via==='wa'?'btn-wa':'btn-dark');
+    if(via==='wa') link.setAttribute('target','_blank'); else link.removeAttribute('target');
+    document.getElementById('doneText').textContent= via==='wa'
+      ? 'Tocca il pulsante per aprire WhatsApp con il messaggio già compilato, poi premi Invia. In alternativa copia il testo e invialo al 345 481 4428.'
+      : 'Tocca il pulsante per aprire la tua app di posta con il messaggio già compilato, poi premi Invia. In alternativa copia il testo e invialo a '+EMAIL+'.';
+    document.getElementById('quoteText').textContent=text;
+    form.hidden=true; done.hidden=false;
+    done.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});
+  });
+  document.getElementById('editQuote').addEventListener('click',function(){done.hidden=true;form.hidden=false;});
+  document.getElementById('copyQuote').addEventListener('click',function(e){copyText(document.getElementById('quoteText').textContent,e.currentTarget,document.getElementById('quoteText'));});
+})();
+</script>
+</body>
+</html>
