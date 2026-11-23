@@ -3,3 +3,4 @@ video/out/
 .DS_Store
 video/blender/out/
 video/blender/tex/
+video/public/film/*.mp4
