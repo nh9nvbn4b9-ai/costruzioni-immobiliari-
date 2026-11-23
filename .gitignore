@@ -1,3 +1,5 @@
 node_modules/
 video/out/
 .DS_Store
+video/blender/out/
+video/blender/tex/
