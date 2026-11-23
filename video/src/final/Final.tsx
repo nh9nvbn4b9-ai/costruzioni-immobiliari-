@@ -10,7 +10,7 @@ import labels from './labels.json';
 
 export const FINAL_FPS = 24;
 export const HERO_FRAMES = 432;
-export const TOUR_FRAMES = 432;
+export const TOUR_FRAMES = 380;
 const cl = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 const outC = Easing.out(Easing.cubic);
 const BG = '#0c0f14';
@@ -43,12 +43,23 @@ export const HeroFinal: React.FC = () => {
 	const f = useCurrentFrame();
 	const {width: W, height: Hh} = useVideoConfig();
 	const portrait = Hh > W;
-	// il master è quadrato: lo posizioniamo in modo che il soggetto stia lontano dai testi del sito
-	const S = portrait ? W * 1.25 : Hh * 1.15;
-	const left = portrait ? (W - S) / 2 : W - S;
-	const top = portrait ? 0 : (Hh - S) / 2;
-	const px = (nx: number) => left + nx * S;
-	const py = (ny: number) => top + ny * S;
+	// il master è quadrato: durante la costruzione copre tutto lo schermo,
+	// poi (322→372) si stringe a destra per lasciare spazio ai testi accanto alla pianta
+	const p = interpolate(f, [322, 372], [0, 1], {...cl, easing: Easing.inOut(Easing.cubic)});
+	const S0 = portrait ? Hh : W;
+	const S1 = portrait ? W * 1.25 : Hh * 1.15;
+	const S = S0 + (S1 - S0) * p;
+	const left0 = (W - S0) / 2;
+	const left1 = portrait ? (W - S1) / 2 : W - S1;
+	const top0 = portrait ? 0 : (Hh - S0) / 2;
+	const top1 = portrait ? 0 : (Hh - S1) / 2;
+	const left = left0 + (left1 - left0) * p;
+	const top = top0 + (top1 - top0) * p;
+	// dopo il fotogramma 392 la camera scende lentamente (36 → 34,5 m): le etichette, misurate al 400, seguono lo zoom
+	const camD = (fr: number) => Math.exp(Math.log(36) + (Math.log(34.5) - Math.log(36)) * Math.min(1, Math.max(0, (fr - 392) / 40)));
+	const k = camD(400) / camD(f + 1);
+	const px = (nx: number) => left + (0.5 + (nx - 0.5) * k) * S;
+	const py = (ny: number) => top + (0.5 + (ny - 0.5) * k) * S;
 	const lab = (j: number) => interpolate(f, [392 + j * 2, 404 + j * 2], [0, 1], {...cl, easing: outC});
 	const fade = Math.min(interpolate(f, [0, 12], [0, 1], cl), interpolate(f, [HERO_FRAMES - 12, HERO_FRAMES - 1], [1, 0], cl));
 	const fs = S * 0.0125;
@@ -60,9 +71,15 @@ export const HeroFinal: React.FC = () => {
 				<OffthreadVideo src={staticFile('blender/hero.mp4')} style={{width: '100%', height: '100%'}} muted />
 			</div>
 			{portrait ? (
-				<AbsoluteFill style={{background: `linear-gradient(180deg, rgba(12,15,20,0) ${((S - 260) / Hh) * 100}%, ${BG} ${(S / Hh) * 100}%)`}} />
+				<>
+					<AbsoluteFill style={{opacity: 1 - p, background: `linear-gradient(180deg, rgba(12,15,20,0) 55%, rgba(12,15,20,0.92) 100%)`}} />
+					<AbsoluteFill style={{opacity: p, background: `linear-gradient(180deg, rgba(12,15,20,0) ${((S1 - 260) / Hh) * 100}%, ${BG} ${(S1 / Hh) * 100}%)`}} />
+				</>
 			) : (
-				<AbsoluteFill style={{background: `linear-gradient(90deg, ${BG} ${(left / W) * 100}%, rgba(12,15,20,0) ${((left + 320) / W) * 100}%)`}} />
+				<>
+					<AbsoluteFill style={{opacity: 1 - p, background: 'linear-gradient(90deg, rgba(12,15,20,0.82) 0%, rgba(12,15,20,0.45) 32%, rgba(12,15,20,0) 58%)'}} />
+					<AbsoluteFill style={{opacity: p, background: `linear-gradient(90deg, ${BG} ${(left1 / W) * 100}%, rgba(12,15,20,0) ${((left1 + 320) / W) * 100}%)`}} />
+				</>
 			)}
 			{f >= 392 && (
 				<AbsoluteFill>
@@ -119,10 +136,10 @@ const SWITCH = 140;
 const CARDS: {r: [number, number]; k: string; t: string; d: string}[] = [
 	{r: [18, 112], k: 'Piano 5° · Appartamento tipo', t: '140 m² su un solo livello', d: '3 camere, 2 bagni, studio e terrazzo di 13 m².'},
 	{r: [160, 222], k: 'Soggiorno · 46,6 m²', t: 'Rovere, bouclé e un tocco di colore', d: 'Vetrate a tutta altezza aperte sul tramonto.'},
-	{r: [236, 282], k: 'Cucina', t: 'Isola in marmo, piano in pietra scura', d: 'Aperta sul soggiorno, con dispensa a colonna.'},
-	{r: [288, 322], k: 'Zona pranzo', t: 'Una tavola per sei accanto al vetro', d: 'Luce naturale da due lati.'},
-	{r: [322, 356], k: 'Terrazzo · 13 m²', t: 'Affacciato sul parco', d: 'Salotto esterno e fioriere in pietra.'},
-	{r: [378, 426], k: 'Camera matrimoniale · 19,4 m²', t: 'Lino, legno di noce e luce calda', d: 'Armadio a tutta parete e angolo lettura.'},
+	{r: [234, 280], k: 'Cucina', t: 'Isola in marmo, piano in pietra scura', d: 'Aperta sul soggiorno, con dispensa a colonna.'},
+	{r: [284, 306], k: 'Zona pranzo', t: 'Una tavola per sei accanto al vetro', d: 'Luce naturale da due lati.'},
+	{r: [308, 334], k: 'Terrazzo · 13 m²', t: 'Affacciato sul parco', d: 'Salotto esterno e fioriere in pietra.'},
+	{r: [344, 374], k: 'Camera matrimoniale · 19,4 m²', t: 'Lino, legno di noce e luce calda', d: 'Armadio a tutta parete e angolo lettura.'},
 ];
 
 export const TourFinal: React.FC = () => {

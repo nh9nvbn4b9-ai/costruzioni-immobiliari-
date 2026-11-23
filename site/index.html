@@ -837,22 +837,22 @@ footer{background:#0b0d11;color:var(--paper-soft);padding-block:56px calc(40px +
   window.addEventListener('resize',function(){clearTimeout(pickVideo.t);pickVideo.t=setTimeout(pickVideo,250);});
   v.addEventListener('playing',function(){poster.style.opacity='0';poster.style.transition='opacity .6s';});
 
-  /* HUD sincronizzato con l'animazione Remotion (30 fps, 600 fotogrammi) */
+  /* HUD sincronizzato con il render Blender (24 fps, 432 fotogrammi) */
   var hud=document.getElementById('hudText'), lastHud='';
   function fmt(n){return n.toFixed(2).replace('.',',');}
   function hudTick(){
     if(!v.paused && v.readyState>1){
-      var fr=Math.floor(v.currentTime*30), t;
-      if(fr<24) t='Il lotto · Milano';
-      else if(fr<62) t='Scavo · quota −3,00 m';
-      else if(fr<88) t='Getto delle fondazioni';
-      else if(fr<240){var lv=Math.min(10,Math.floor((fr-88)/15)+1);t='Struttura · livello '+String(lv).padStart(2,'0')+'/10 · +'+fmt(lv*3.2)+' m';}
-      else if(fr<310) t='Facciate e vetrate';
-      else if(fr<385) t='Edificio completato · +32,00 m';
-      else if(fr<440) t='Piano 5° · si accendono le luci';
-      else if(fr<528) t='Piano 5° · zoom sull’appartamento';
-      else if(fr<586) t='Pianta piano 5° · 140 m²';
-      else t='Nuovo progetto…';
+      var fr=Math.floor(v.currentTime*24), t;
+      if(fr<18) t='Il lotto · Milano';
+      else if(fr<48) t='Scavo · quota −3,00 m';
+      else if(fr<66) t='Getto delle fondazioni';
+      else if(fr<176){var lv=Math.max(1,Math.min(10,Math.floor((fr-66)/11)+1));t='Struttura · livello '+String(lv).padStart(2,'0')+'/10 · +'+fmt(lv*3.2)+' m';}
+      else if(fr<225) t='Facciate e vetrate';
+      else if(fr<272) t='Copertura e sistemazioni esterne';
+      else if(fr<285) t='Edificio completato · +32,00 m';
+      else if(fr<330) t='Piano 5° · si accendono le luci';
+      else if(fr<392) t='Piano 5° · dentro l’appartamento';
+      else t='Pianta piano 5° · 140 m²';
       if(t!==lastHud){hud.textContent=t;lastHud=t;}
     }
     requestAnimationFrame(hudTick);
