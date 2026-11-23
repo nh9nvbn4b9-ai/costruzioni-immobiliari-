@@ -14,7 +14,7 @@ args = ap.parse_args()
 PORT = args.orient == 'portrait'
 OW, OH = (1080, 1920) if PORT else (1920, 1080)
 FPS = args.fps
-DUR = 33.5
+DUR = 15.4
 BG = np.array([20, 15, 12], np.float32)
 os.chdir('/tmp/claude-0/work')
 
@@ -30,6 +30,22 @@ names = ['p0', 'p1', 'p2', 'p3', 'glow', 'bloom']
 L4 = {n: cv2.imread(f'{n}_4x.png') for n in names}
 T4 = {'Ts': np.load('Ts.npy').astype(np.float32), 'Tf': np.load('Tf.npy').astype(np.float32),
       'Ton': np.load('Ton.npy').astype(np.float32), 'gm': np.load('glow_mask.npy').astype(np.float32)}
+PAD = 736 if PORT else 0
+if PAD:
+    def padsky(img):
+        top = img[:200].astype(np.float32)
+        g = (top[0] - top[199]) / 199.0                       # gradiente verticale per colonna
+        rows = np.arange(PAD, 0, -1, dtype=np.float32)[:, None, None]
+        ext = np.clip(top[0][None] + g[None] * rows * 0.8, 0, 255)
+        ext = cv2.GaussianBlur(ext, (0, 0), 3)
+        return np.concatenate([ext.astype(np.uint8), img], 0)
+    for n in ('p0', 'p1', 'p2', 'p3'):
+        L4[n] = padsky(L4[n])
+    for n in ('glow', 'bloom'):
+        L4[n] = np.concatenate([np.zeros((PAD,) + L4[n].shape[1:], np.uint8), L4[n]], 0)
+    for n in ('Ts', 'Tf', 'Ton'):
+        T4[n] = np.concatenate([np.full((PAD, T4[n].shape[1]), np.inf, np.float32), T4[n]], 0)
+    T4['gm'] = np.concatenate([np.zeros((PAD, T4['gm'].shape[1]), np.float32), T4['gm']], 0)
 PH, PW = L4['p0'].shape[:2]
 L2 = {n: cv2.resize(v, (PW // 2, PH // 2), interpolation=cv2.INTER_AREA) for n, v in L4.items()}
 T2 = {n: cv2.resize(v, (PW // 2, PH // 2), interpolation=cv2.INTER_NEAREST if n != 'gm' else cv2.INTER_AREA) for n, v in T4.items()}
@@ -51,12 +67,9 @@ def compose(t, L, T, sl):
         img += f('bloom') * ss(11.6, 12.5, t)
     return img
 
-def facade_frame(t, cx, cy, h):
-    """camera virtuale: centro (cx, cy) e altezza h in pixel della piastra 4x."""
-    w = h * OW / OH
-    if w > PW: w = PW; h = w * OH / OW
+def render_crop(t, cx, cy, h, w, OW_, OH_):
     cx = min(max(cx, w / 2), PW - w / 2); cy = min(max(cy, h / 2), PH - h / 2)
-    lv = 2 if h / OH >= 2.0 else 1
+    lv = 2 if h / OH_ >= 2.0 else 1
     L, T = (L2, T2) if lv == 2 else (L4, T4)
     s4 = 1 / lv
     x0, y0 = (cx - w / 2) * s4, (cy - h / 2) * s4
@@ -64,14 +77,33 @@ def facade_frame(t, cx, cy, h):
     ix1, iy1 = min(int(x0 + w * s4) + 3, L['p0'].shape[1]), min(int(y0 + h * s4) + 3, L['p0'].shape[0])
     sl = (slice(iy0, iy1), slice(ix0, ix1))
     img = compose(t, L, T, sl)
-    sc = OW / (w * s4)
-    M = np.array([[sc, 0, -(x0 - ix0) * sc], [0, sc, -(y0 - iy0) * sc]], np.float32)
-    interp = cv2.INTER_AREA if sc < 1 else cv2.INTER_CUBIC
+    sc = OW_ / (w * s4)
     if sc < 1:
         img = cv2.resize(img, None, fx=sc, fy=sc, interpolation=cv2.INTER_AREA)
-        M = np.array([[1, 0, -(x0 - ix0) * sc], [0, 1, -(y0 - iy0) * sc]], np.float32)
-        interp = cv2.INTER_LINEAR
-    return cv2.warpAffine(img, M, (OW, OH), flags=interp, borderMode=cv2.BORDER_REPLICATE)
+        M = np.array([[1, 0, -(x0 - ix0) * sc], [0, 1, -(y0 - iy0) * sc]], np.float32); interp = cv2.INTER_LINEAR
+    else:
+        M = np.array([[sc, 0, -(x0 - ix0) * sc], [0, sc, -(y0 - iy0) * sc]], np.float32); interp = cv2.INTER_CUBIC
+    return cv2.warpAffine(img, M, (OW_, OH_), flags=interp, borderMode=cv2.BORDER_REPLICATE)
+
+def facade_frame(t, cx, cy, h):
+    w = h * OW / OH
+    if w <= PW:
+        return render_crop(t, cx, cy, h, w, OW, OH)
+    # orizzontale con edificio intero: pannello nitido + sfondo sfocato
+    pw_px = int(round(PW / h * OH)) // 2 * 2
+    panel = render_crop(t, PW / 2, cy, h, PW, pw_px, OH)
+    bgw = OW; bgh = int(OH * 1.0)
+    small = cv2.resize(panel, (max(pw_px // 6, 8), OH // 6), interpolation=cv2.INTER_AREA)
+    bg = cv2.resize(small, (OW, int(OW * OH / pw_px)), interpolation=cv2.INTER_LINEAR)
+    oy = (bg.shape[0] - OH) // 2
+    bg = cv2.GaussianBlur(bg[oy:oy + OH], (0, 0), 60) * 0.32 + BG * 0.25
+    k = np.clip((PW / h * OH - OW * 0.0) / OW, 0, 1)
+    X = int(OW * 0.62 + (OW * 0.5 - OW * 0.62) * np.clip((pw_px / OW - 0.42) / 0.58, 0, 1) - pw_px / 2)
+    X = min(max(X, 0), OW - pw_px)
+    out = bg.copy()
+    feather = np.clip(np.minimum(np.arange(pw_px), np.arange(pw_px)[::-1]) / 50.0, 0, 1)[None, :, None]
+    out[:, X:X + pw_px] = out[:, X:X + pw_px] * (1 - feather) + panel * feather
+    return out
 
 # ---------- regia della facciata ----------
 def lerpk(keys, t):
@@ -91,16 +123,8 @@ def build_top(t):
 
 def facade_cam(t):
     if PORT:
-        return lerpk([(0, 1400, 2150, 4120), (10.0, 1400, 2070, 3720), (12.2, 1405, 2040, 3450), (14.6, 1420, 1990, 2300), (15.6, 1425, 1985, 1250)], t)
-    H0 = PW * OH / OW
-    if t < 9.3:
-        top_edge = build_top(min(t, 6.0)) * 4 - 0.16 * H0
-        cy_build = min(top_edge + H0 / 2, PH - H0 / 2 - 230)
-        if t <= 6.0:
-            return [1400, cy_build, H0]
-        u = eio((t - 6.0) / 3.3)
-        return [1400, cy_build + (2000 - cy_build) * u, H0]
-    return lerpk([(9.3, 1400, 2000, H0), (12.2, 1405, 1995, H0), (14.6, 1420, 1990, H0 * 0.62), (15.6, 1425, 1985, H0 * 0.34)], t)
+        return lerpk([(0, 1400, 2489, 4978), (10.0, 1400, 2560, 4700), (12.2, 1405, 2600, 4500), (15.4, 1420, 1990 + PAD, 2700)], t)
+    return lerpk([(0, 1400, 2330, 3820), (10.0, 1400, 2300, 3550), (12.2, 1405, 2200, 3300), (15.4, 1420, 1990, 1750)], t)
 
 # ---------- pianta ----------
 _pp = '/home/user/costruzioni-immobiliari-/video/blender/out/plan.png'
@@ -197,25 +221,12 @@ yy, xx = np.mgrid[0:OH, 0:OW].astype(np.float32)
 VIG = (1 - 0.16 * (((xx - OW / 2) / (OW / 2)) ** 2 + ((yy - OH / 2) / (OH / 2)) ** 2) ** 1.4).clip(0.55, 1)[..., None]
 
 def frame(t, fi):
-    meta = {}
-    if t < 15.6:
-        img = facade_frame(t, *facade_cam(t))
-    if 14.8 <= t < 20.6:
-        pf, rect = plan_frame(t)
-        meta['plan'] = rect
-        x = ss(14.8, 15.6, t)
-        img = pf if t >= 15.6 else img * (1 - x) + pf * x
-        if t < 15.6:
-            img += np.array([40, 70, 110], np.float32) * 0.35 * math.sin(math.pi * x)
-    if t >= 19.5:
-        tf = tour(t)
-        x = ss(19.5, 20.6, t)
-        img = tf if t >= 20.6 else img * (1 - x) + tf * x
-    fade = ss(0, 0.6, t) * (1 - ss(DUR - 0.8, DUR, t))
+    img = facade_frame(t, *facade_cam(t))
+    fade = ss(0, 0.6, t)
     img = img * VIG
     img += GR[fi % 6][..., None] * 3.0
     img = BG + (img - BG) * fade
-    return img.clip(0, 255).astype(np.uint8), meta
+    return img.clip(0, 255).astype(np.uint8), {}
 
 if args.preview:
     for tt in [float(x) for x in args.preview.split(',')]:

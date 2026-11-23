@@ -5,12 +5,15 @@ import {Cantiere} from './cantiere/Cantiere';
 import {DURATION as D3} from './cantiere/plan';
 import {Tour, TOUR_DURATION} from './cantiere/Tour';
 import {FilmHome, FILM_FRAMES, FILM_FPS} from './final/Film';
+import {Film2, FILM2_FRAMES, FILM2_FPS} from './final/Film2';
 import {HeroFinal, TourFinal, HERO_FRAMES, TOUR_FRAMES, FINAL_FPS} from './final/Final';
 
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
 			{/* Montaggio finale dei render fotorealistici Blender/Cycles (usato dal sito) */}
+			<Composition id="Film2Portrait" component={Film2} durationInFrames={FILM2_FRAMES} fps={FILM2_FPS} width={1080} height={1920} />
+			<Composition id="Film2Landscape" component={Film2} durationInFrames={FILM2_FRAMES} fps={FILM2_FPS} width={1920} height={1080} />
 			<Composition id="FilmPortrait" component={FilmHome} durationInFrames={FILM_FRAMES} fps={FILM_FPS} width={1080} height={1920} />
 			<Composition id="FilmLandscape" component={FilmHome} durationInFrames={FILM_FRAMES} fps={FILM_FPS} width={1920} height={1080} />
 			<Composition id="HomeLandscape" component={HeroFinal} durationInFrames={HERO_FRAMES} fps={FINAL_FPS} width={1920} height={1080} />

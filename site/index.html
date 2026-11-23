@@ -511,7 +511,7 @@ footer{background:#0b0d11;color:var(--paper-soft);padding-block:56px calc(40px +
         <p class="eyebrow">Tour dell’appartamento</p>
         <h2 class="split" data-split>Entra in casa.</h2>
       </div>
-      <p class="rv">Dalla pianta del 3° piano si entra nelle stanze: soggiorno in pietra naturale e bagno padronale, con un carrello di camera che si muove da solo.</p>
+      <p class="rv">Il plastico 3D del 3° piano si monta stanza per stanza, poi la camera entra e attraversa la casa da sola: soggiorno, cucina, zona pranzo e camera matrimoniale.</p>
     </div>
     <div class="tour-frame rv">
       <img src="assets/tour-poster.jpg" alt="" aria-hidden="true" id="tourPoster">
@@ -837,11 +837,11 @@ footer{background:#0b0d11;color:var(--paper-soft);padding-block:56px calc(40px +
   window.addEventListener('resize',function(){clearTimeout(pickVideo.t);pickVideo.t=setTimeout(pickVideo,250);});
   v.addEventListener('playing',function(){poster.style.opacity='0';poster.style.transition='opacity .6s';});
 
-  /* HUD sincronizzato con il film della Home (24 fps, 804 fotogrammi) */
+  /* HUD sincronizzato con il film della Home (24 fps, 876 fotogrammi) */
   var hud=document.getElementById('hudText'), lastHud='';
   function hudTick(){
     if(!v.paused && v.readyState>1){
-      var s=v.currentTime, t;
+      var s=v.currentTime, t, q=(s-14.83)*24;
       if(s<1.2) t='Il lotto · Milano';
       else if(s<1.8) t='Fondazioni e piano terra';
       else if(s<5.3){var lv=Math.max(1,Math.min(5,Math.floor((s-1.8)/0.7)+1));t='Struttura · piano '+lv+'/5';}
@@ -849,10 +849,16 @@ footer{background:#0b0d11;color:var(--paper-soft);padding-block:56px calc(40px +
       else if(s<9.3) t='Vetrate, finiture e verde';
       else if(s<10.4) t='Edificio completato';
       else if(s<11.6) t='Il tramonto';
-      else if(s<14.8) t='Piano 3° · si accendono le luci';
-      else if(s<19.6) t='Pianta piano 3° · 140 m²';
-      else if(s<26.4) t='Tour · Soggiorno';
-      else t='Tour · Bagno padronale';
+      else if(s<14.9) t='Piano 3° · si accendono le luci';
+      else if(q<70) t='Pianta piano 3° · si alzano i muri';
+      else if(q<160) t='Pianta piano 3° · arredi stanza per stanza';
+      else if(q<205) t='Pianta piano 3° · 140 m²';
+      else if(q<262) t='Si entra nell’appartamento';
+      else if(q<334) t='Tour 3D · Soggiorno';
+      else if(q<394) t='Tour 3D · Cucina';
+      else if(q<440) t='Tour 3D · Zona pranzo';
+      else if(q<480) t='Tour 3D · Disimpegno';
+      else t='Tour 3D · Camera matrimoniale';
       if(t!==lastHud){hud.textContent=t;lastHud=t;}
     }
     requestAnimationFrame(hudTick);
